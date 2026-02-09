@@ -448,6 +448,7 @@
             <div class="action-buttons">
                 <button class="go-to-current" onclick="goToCurrentWeek()">📍 Go To Current Week</button>
                 <button onclick="resetFilters()">Reset Filters</button>
+                <button onclick="clearAllCompleted()">Clear Completed</button>
                 <button onclick="window.print()">Print View</button>
                 <button onclick="exportWeek()">Export Week</button>
             </div>
@@ -727,6 +728,16 @@
             a.href = URL.createObjectURL(blob);
             a.download = `nolimit-week-${weekNum}.txt`;
             a.click();
+        }
+
+        function clearAllCompleted() {
+            if (confirm('Are you sure you want to clear all completed weeks? This cannot be undone.')) {
+                completedWeeks.clear();
+                localStorage.removeItem('completedWeeks');
+                renderCurriculum();
+                updateStats();
+                alert('All completed weeks have been cleared!');
+            }
         }
 
         init();
