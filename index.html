@@ -174,6 +174,7 @@
         .controls {
             background: linear-gradient(180deg, #1a1a1a 0%, #2C3E50 100%);
             padding: 0.75rem;
+            position: -webkit-sticky;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -495,6 +496,26 @@
         @media (min-width: 1200px) {
             .programs-grid { grid-template-columns: repeat(4, 1fr); }
         }
+    
+        /* Safari-specific fixes */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        select, input, button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem top 50%;
+            background-size: 1rem auto;
+            padding-right: 2.5rem;
+        }
+        
     </style>
 </head>
 <body>
@@ -690,12 +711,33 @@
             
             try {
                 const today = new Date();
-                const parts = week.week_dates.split(' - ');
-                const startStr = parts[0].trim() + ', ' + today.getFullYear();
-                const endStr = parts[1].trim() + ', ' + today.getFullYear();
+                const currentYear = today.getFullYear();
                 
-                const start = new Date(startStr);
-                const end = new Date(endStr);
+                // Parse date range (e.g., "Feb 09 - Feb 15")
+                const parts = week.week_dates.split(' - ');
+                if (parts.length !== 2) return false;
+                
+                // Convert "Feb 09" to "2026-02-09" format for Safari
+                const monthMap = {
+                    'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+                    'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+                    'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+                };
+                
+                function parseDate(dateStr, year) {
+                    const [month, day] = dateStr.trim().split(' ');
+                    const monthNum = monthMap[month];
+                    if (!monthNum) return null;
+                    
+                    const paddedDay = day.padStart(2, '0');
+                    // Safari-safe format: YYYY-MM-DD
+                    return new Date(year + '-' + monthNum + '-' + paddedDay);
+                }
+                
+                const start = parseDate(parts[0], currentYear);
+                const end = parseDate(parts[1], currentYear);
+                
+                if (!start || !end) return false;
                 
                 // Set time to midnight for accurate comparison
                 today.setHours(0, 0, 0, 0);
@@ -704,6 +746,7 @@
                 
                 return today >= start && today <= end;
             } catch (e) {
+                console.error('Date parsing error:', e);
                 return false;
             }
         }
