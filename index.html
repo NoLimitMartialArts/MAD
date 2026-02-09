@@ -500,7 +500,7 @@
                 const option = document.createElement('option');
                 option.value = week.week_number;
                 option.textContent = week.week_dates;
-                if (week.is_current_week) {
+                if (isCurrentWeek(week)) {
                     option.textContent += ' (Current)';
                 }
                 select.appendChild(option);
@@ -508,7 +508,7 @@
         }
 
         function setCurrentWeekAsDefault() {
-            const currentWeek = CURRICULUM_DATA.find(w => w.is_current_week);
+            const currentWeek = CURRICULUM_DATA.find(w => isCurrentWeek(w));
             if (currentWeek) {
                 document.getElementById('weekFilter').value = currentWeek.week_number;
                 currentFilters.week = currentWeek.week_number.toString();
@@ -516,7 +516,7 @@
         }
 
         function goToCurrentWeek() {
-            const currentWeek = CURRICULUM_DATA.find(w => w.is_current_week);
+            const currentWeek = CURRICULUM_DATA.find(w => isCurrentWeek(w));
             if (currentWeek) {
                 document.getElementById('weekFilter').value = currentWeek.week_number;
                 currentFilters.week = currentWeek.week_number.toString();
@@ -586,6 +586,29 @@
             });
         }
 
+        function isCurrentWeek(week) {
+            if (!week.week_dates) return false;
+            
+            try {
+                const today = new Date();
+                const parts = week.week_dates.split(' - ');
+                const startStr = parts[0].trim() + ', ' + today.getFullYear();
+                const endStr = parts[1].trim() + ', ' + today.getFullYear();
+                
+                const start = new Date(startStr);
+                const end = new Date(endStr);
+                
+                // Set time to midnight for accurate comparison
+                today.setHours(0, 0, 0, 0);
+                start.setHours(0, 0, 0, 0);
+                end.setHours(23, 59, 59, 999);
+                
+                return today >= start && today <= end;
+            } catch (e) {
+                return false;
+            }
+        }
+
         function renderCurriculum() {
             const container = document.getElementById('curriculum-container');
             const filtered = filterData();
@@ -597,7 +620,7 @@
 
             container.innerHTML = filtered.map(week => {
                 const isCompleted = completedWeeks.has(week.week_number);
-                const isCurrent = week.is_current_week;
+                const isCurrent = isCurrentWeek(week);
                 
                 return `
                     <div class="week-section">
