@@ -45,7 +45,14 @@
             border-bottom: 4px solid var(--primary-blue);
         }
         
-        .logo { max-width: 200px; height: auto; margin-bottom: 1rem; filter: drop-shadow(0 4px 12px rgba(93, 173, 226, 0.4)); }
+        .logo { 
+            max-width: 350px; 
+            height: auto; 
+            margin-bottom: 1rem; 
+            filter: drop-shadow(0 4px 12px rgba(93, 173, 226, 0.4));
+            background: transparent;
+            mix-blend-mode: screen;
+        }
         
         h1 {
             font-family: 'Bebas Neue', sans-serif;
@@ -373,7 +380,7 @@
         
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
-            .logo { max-width: 150px; }
+            .logo { max-width: 250px; }
             .controls-grid { gap: 0.5rem; }
             .filter-row { flex-direction: column; }
             .filter-group { min-width: 100%; }
