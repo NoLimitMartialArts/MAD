@@ -29,13 +29,110 @@
         }
         
         @media print {
-            .controls, .go-to-current, .week-actions button { display: none !important; }
-            .week-card { page-break-inside: avoid; border: 1px solid #333 !important; margin-bottom: 1rem; padding: 1rem !important; }
-            .program-card { page-break-inside: avoid; padding: 0.5rem !important; margin-bottom: 0.5rem; }
-            body { background: white; color: black; }
-            .week-card, .program-card { background: white !important; }
-            .program-title, .week-title { color: #333 !important; }
-            .technique { font-size: 0.8rem; line-height: 1.4; margin-bottom: 0.25rem; }
+            /* Hide all visual elements */
+            .header, .controls, .stats, .go-to-current, .week-actions, .logo { display: none !important; }
+            
+            /* Reset body to plain text */
+            body { 
+                background: white !important; 
+                color: black !important;
+                font-family: Arial, sans-serif !important;
+                font-size: 11pt !important;
+                line-height: 1.4 !important;
+                padding: 0.5in !important;
+            }
+            
+            /* Week section - minimal styling */
+            .week-section {
+                page-break-inside: avoid;
+                margin-bottom: 1.5rem;
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 1rem;
+            }
+            
+            .week-header {
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .week-header::before, .week-header::after { display: none !important; }
+            
+            .week-title {
+                font-family: Arial, sans-serif !important;
+                font-size: 12pt !important;
+                font-weight: bold !important;
+                color: black !important;
+                margin: 0 !important;
+                text-transform: none !important;
+                background: none !important;
+                -webkit-text-fill-color: black !important;
+            }
+            
+            .week-date {
+                font-size: 10pt !important;
+                color: #333 !important;
+                margin: 0 0 0.5rem 0 !important;
+            }
+            
+            /* Programs grid - convert to simple list */
+            .programs-grid {
+                display: block !important;
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+            
+            .program-card {
+                display: block !important;
+                background: none !important;
+                border: none !important;
+                padding: 0 0 0.75rem 0 !important;
+                margin: 0 0 0.5rem 0 !important;
+                page-break-inside: avoid;
+            }
+            
+            .program-title {
+                font-family: Arial, sans-serif !important;
+                font-size: 11pt !important;
+                font-weight: bold !important;
+                color: black !important;
+                margin: 0 0 0.25rem 0 !important;
+                border: none !important;
+                padding: 0 !important;
+                text-transform: none !important;
+            }
+            
+            .theme {
+                font-size: 10pt !important;
+                font-weight: normal !important;
+                font-style: italic !important;
+                color: #333 !important;
+                margin: 0 0 0.25rem 0 !important;
+            }
+            
+            .technique {
+                font-size: 10pt !important;
+                line-height: 1.3 !important;
+                color: black !important;
+                margin: 0 0 0.1rem 0 !important;
+                padding: 0 !important;
+                background: none !important;
+            }
+            
+            .technique.highlight {
+                background: none !important;
+                animation: none !important;
+            }
+            
+            /* Remove all colors, gradients, and decorations */
+            * {
+                box-shadow: none !important;
+                text-shadow: none !important;
+                filter: none !important;
+                animation: none !important;
+            }
         }
         
         .header {
