@@ -492,7 +492,7 @@
             CURRICULUM_DATA.forEach(week => {
                 const option = document.createElement('option');
                 option.value = week.week_number;
-                option.textContent = `Week ${week.week_number} - ${week.week_dates}`;
+                option.textContent = week.week_dates;
                 if (week.is_current_week) {
                     option.textContent += ' (Current)';
                 }
