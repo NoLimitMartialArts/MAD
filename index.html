@@ -1071,6 +1071,56 @@
         }
 
         
+        
+        // ===== MISSING UTILITY FUNCTIONS =====
+        
+        function goToCurrentWeek() {
+            const currentWeekNum = CURRICULUM_DATA.find(w => w.is_current_week)?.week_number;
+            if (currentWeekNum) {
+                currentFilters.week = currentWeekNum;
+                document.getElementById('weekFilter').value = currentWeekNum;
+                renderCurriculum();
+                
+                // Scroll to current week
+                setTimeout(() => {
+                    const currentWeekEl = document.querySelector('.week-section.current-week');
+                    if (currentWeekEl) {
+                        currentWeekEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName + '-tab');
+            if (selectedTab) selectedTab.classList.add('active');
+            
+            // Update button
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tabName)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // If switching to creed tab, load data
+            if (tabName === 'creed') {
+                loadCreedData();
+            }
+        }
+        
+        // ===== END MISSING FUNCTIONS =====
+
+
         // ===== CREED TRACKER FUNCTIONS =====
         let currentEditId = null;
         let selectedRating = 0;
