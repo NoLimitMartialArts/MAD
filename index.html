@@ -857,7 +857,7 @@
             </div>
         </div>
 
-        <div id="curriculum-container"></div>
+        <div id="weeksList"></div>
     </div>
 
         </div>
@@ -1529,6 +1529,18 @@
         function formatCreedDate(dateStr) {
             const date = new Date(dateStr + 'T00:00:00');
             return date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+
+        function resetFilters() {
+            currentFilters.week = null;
+            currentFilters.programs = { littles: true, juniors: true, advanced: true, leadership: true };
+            document.getElementById('weekFilter').value = '';
+            ['littles', 'juniors', 'advanced', 'leadership'].forEach(prog => {
+                const checkbox = document.getElementById(prog + 'Filter');
+                if (checkbox) checkbox.checked = true;
+            });
+            renderCurriculum();
         }
 
         async function init() {
