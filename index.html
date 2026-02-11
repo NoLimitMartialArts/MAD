@@ -1351,7 +1351,7 @@
         }
 
         // Save Creed Entry
-        async function saveCreedEntry() {
+        function saveCreedEntry() {
             const name = document.getElementById('studentName').value.trim();
             const date = document.getElementById('recitationDate').value;
             const notes = document.getElementById('recitationNotes').value.trim();
@@ -1370,16 +1370,15 @@
                 timestamp: new Date().toISOString()
             };
             
-            try {
-                if (currentEditId) {
-                    // Update existing
-                    await window.storage.set('creed:' + currentEditId, JSON.stringify(entry), true);
-                } else {
-                    // Create new
-                    await window.storage.set('creed:' + entry.id, JSON.stringify(entry), true);
-                }
-                
-                // Reset form
+            if (currentEditId) {
+                // Update existing
+                localStorage.setItem('creed:' + currentEditId, JSON.stringify(entry));
+            } else {
+                // Create new
+                localStorage.setItem('creed:' + entry.id, JSON.stringify(entry));
+            }
+            
+            // Reset form
                 document.getElementById('studentName').value = '';
                 document.getElementById('recitationDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('recitationNotes').value = '';
@@ -1388,37 +1387,35 @@
                 
                 cancelEdit();
                 loadCreedData();
-                
-                alert(currentEditId ? 'Entry updated successfully!' : 'Entry added successfully!');
-            } catch (error) {
-                alert('Error saving entry: ' + error.message);
-            }
+            
+            alert(currentEditId ? 'Entry updated successfully!' : 'Entry added successfully!');
         }
 
         // Load Creed Data
-        async function loadCreedData() {
+        function loadCreedData() {
             try {
-                const result = await window.storage.list('creed:', true);
+                // Get all creed entries from localStorage
+                const entries = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('creed:')) {
+                        try {
+                            const value = localStorage.getItem(key);
+                            if (value) {
+                                const entry = JSON.parse(value);
+                                entry.storageKey = key;
+                                entries.push(entry);
+                            }
+                        } catch (e) {
+                            console.error('Error loading entry:', e);
+                        }
+                    }
+                }
                 
-                if (!result || !result.keys || result.keys.length === 0) {
+                if (entries.length === 0) {
                     displayNoEntries();
                     updateStats([]);
                     return;
-                }
-                
-                // Fetch all entries
-                const entries = [];
-                for (const key of result.keys) {
-                    try {
-                        const data = await window.storage.get(key, true);
-                        if (data && data.value) {
-                            const entry = JSON.parse(data.value);
-                            entry.storageKey = key;
-                            entries.push(entry);
-                        }
-                    } catch (e) {
-                        console.error('Error loading entry:', e);
-                    }
                 }
                 
                 // Sort by date (newest first)
@@ -1426,10 +1423,6 @@
                 
                 displayCreedEntries(entries);
                 updateStats(entries);
-            } catch (error) {
-                console.error('Error loading creed data:', error);
-                displayNoEntries();
-            }
         }
 
         // Display Entries
@@ -1505,31 +1498,27 @@
         }
 
         // Edit Entry
-        async function editCreedEntry(id) {
-            try {
-                const data = await window.storage.get('creed:' + id, true);
-                if (!data || !data.value) {
-                    alert('Entry not found');
-                    return;
-                }
-                
-                const entry = JSON.parse(data.value);
-                
-                document.getElementById('studentName').value = entry.name;
-                document.getElementById('recitationDate').value = entry.date;
-                document.getElementById('recitationNotes').value = entry.notes || '';
-                selectedRating = entry.rating;
-                updateStarDisplay();
-                
-                currentEditId = id;
-                document.getElementById('saveCreedBtn').textContent = 'Update Entry';
-                document.getElementById('cancelEditBtn').style.display = 'inline-block';
-                
-                // Scroll to form
-                document.querySelector('.creed-form').scrollIntoView({ behavior: 'smooth' });
-            } catch (error) {
-                alert('Error loading entry: ' + error.message);
+        function editCreedEntry(id) {
+            const value = localStorage.getItem('creed:' + id);
+            if (!value) {
+                alert('Entry not found');
+                return;
             }
+            
+            const entry = JSON.parse(value);
+            
+            document.getElementById('studentName').value = entry.name;
+            document.getElementById('recitationDate').value = entry.date;
+            document.getElementById('recitationNotes').value = entry.notes || '';
+            selectedRating = entry.rating;
+            updateStarDisplay();
+            
+            currentEditId = id;
+            document.getElementById('saveCreedBtn').textContent = 'Update Entry';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+            
+            // Scroll to form
+            document.querySelector('.creed-form').scrollIntoView({ behavior: 'smooth' });
         }
 
         // Cancel Edit
@@ -1546,18 +1535,14 @@
         }
 
         // Delete Entry
-        async function deleteCreedEntry(id) {
+        function deleteCreedEntry(id) {
             if (!confirm('Are you sure you want to delete this entry?')) {
                 return;
             }
             
-            try {
-                await window.storage.delete('creed:' + id, true);
-                loadCreedData();
-                alert('Entry deleted successfully!');
-            } catch (error) {
-                alert('Error deleting entry: ' + error.message);
-            }
+            localStorage.removeItem('creed:' + id);
+            loadCreedData();
+            alert('Entry deleted successfully!');
         }
 
         // Apply Filters
@@ -1588,25 +1573,27 @@
         }
 
         // Export to CSV
-        async function exportCreedData() {
+        function exportCreedData() {
             try {
-                const result = await window.storage.list('creed:', true);
-                
-                if (!result || !result.keys || result.keys.length === 0) {
-                    alert('No entries to export');
-                    return;
+                // Get all creed entries from localStorage
+                const entries = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('creed:')) {
+                        try {
+                            const value = localStorage.getItem(key);
+                            if (value) {
+                                entries.push(JSON.parse(value));
+                            }
+                        } catch (e) {
+                            console.error('Error loading entry for export:', e);
+                        }
+                    }
                 }
                 
-                const entries = [];
-                for (const key of result.keys) {
-                    try {
-                        const data = await window.storage.get(key, true);
-                        if (data && data.value) {
-                            entries.push(JSON.parse(data.value));
-                        }
-                    } catch (e) {
-                        console.error('Error loading entry for export:', e);
-                    }
+                if (entries.length === 0) {
+                    alert('No entries to export');
+                    return;
                 }
                 
                 // Sort by date
