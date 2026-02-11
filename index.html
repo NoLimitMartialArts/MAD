@@ -1014,141 +1014,285 @@
                     renderCurriculum();
                     updateStats();
                 } else {
-                    console.error('No curriculum data received from Google Sheets');
-                    alert('Error: No curriculum data found in Google Sheets. Please check the sheet has data.');
+                    console.error('No curriculum data received');
+                    alert('Error: No curriculum data found in Google Sheets');
                 }
             } catch (error) {
                 console.error('Error loading curriculum:', error);
-                alert('Error connecting to Google Sheets: ' + error.message + '. Check console for details.');
+                alert('Error connecting to Google Sheets: ' + error.message);
             }
         }
-        
-        const completedWeeks = (() => {
+
+        // Set current week based on today's date
+        function setCurrentWeekAsDefault() {
+            const today = new Date();
+            CURRICULUM_DATA.forEach(week => {
+                const [start, end] = week.week_dates.split(' - ');
+                const startDate = parseDate(start + ', 2026');
+                const endDate = parseDate(end + ', 2026');
+                week.is_current_week = today >= startDate && today <= endDate;
+            });
+        }
+
+        function parseDate(dateStr) {
+            const parts = dateStr.replace(',', '').split(' ');
+            const months = {'Jan':0,'Feb':1,'Mar':2,'Apr':3,'May':4,'Jun':5,'Jul':6,'Aug':7,'Sep':8,'Oct':9,'Nov':10,'Dec':11};
+            const month = months[parts[0]];
+            const day = parseInt(parts[1]);
+            const year = parseInt(parts[2]);
+            return new Date(year, month, day);
+        }
+
+        let currentFilters = { week: null, programs: { littles: true, juniors: true, advanced: true, leadership: true } };
+        let completedWeeks = (() => {
             try {
                 const stored = localStorage.getItem('completedWeeks');
                 if (!stored) return new Set();
                 const parsed = JSON.parse(stored);
-                // Validate it's an array of numbers
                 if (Array.isArray(parsed) && parsed.every(n => typeof n === 'number')) {
                     return new Set(parsed);
                 }
                 return new Set();
             } catch (e) {
-                console.error('Invalid localStorage data, resetting');
+                console.error('Invalid localStorage data');
                 localStorage.removeItem('completedWeeks');
                 return new Set();
             }
         })();
-        
-        let currentFilters = {
-            week: '',
-            search: '',
-            programs: new Set(['littles_basic', 'juniors_basic', 'juniors_advanced', 'leadership'])
-        };
 
-        
-        // Tab Switching
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+        function populateWeekFilter() {
+            const select = document.getElementById('weekFilter');
+            select.innerHTML = '<option value="">All Weeks</option>';
+            CURRICULUM_DATA.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week.week_number;
+                option.textContent = week.week_dates;
+                select.appendChild(option);
             });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab
-            const selectedTab = document.getElementById(tabName + '-tab');
-            const clickedButton = event ? event.target : document.querySelector('[onclick*="switchTab(\'' + tabName + '\'')"]');
-            
-            if (selectedTab) selectedTab.classList.add('active');
-            if (clickedButton) clickedButton.classList.add('active');
-            
-            // If switching to creed tab, load data
-            if (tabName === 'creed') {
-                loadCreedData();
-            }
         }
 
-        
-        
-        // ===== MISSING UTILITY FUNCTIONS =====
-        
         function goToCurrentWeek() {
-            const currentWeekNum = CURRICULUM_DATA.find(w => w.is_current_week)?.week_number;
-            if (currentWeekNum) {
-                currentFilters.week = currentWeekNum;
-                document.getElementById('weekFilter').value = currentWeekNum;
+            const currentWeek = CURRICULUM_DATA.find(w => w.is_current_week);
+            if (currentWeek) {
+                currentFilters.week = currentWeek.week_number;
+                document.getElementById('weekFilter').value = currentWeek.week_number;
                 renderCurriculum();
-                
-                // Scroll to current week
                 setTimeout(() => {
-                    const currentWeekEl = document.querySelector('.week-section.current-week');
-                    if (currentWeekEl) {
-                        currentWeekEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    const el = document.querySelector('.week-section.current-week');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
         }
 
         function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             
-            // Show selected tab
             const selectedTab = document.getElementById(tabName + '-tab');
             if (selectedTab) selectedTab.classList.add('active');
             
-            // Update button
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(tabName)) {
-                    btn.classList.add('active');
-                }
-            });
+            event.target.classList.add('active');
             
-            // If switching to creed tab, load data
             if (tabName === 'creed') {
                 loadCreedData();
             }
         }
-        
-        // ===== END MISSING FUNCTIONS =====
 
+        function renderCurriculum() {
+            const container = document.getElementById('weeksList');
+            const filtered = CURRICULUM_DATA.filter(week => {
+                if (currentFilters.week && week.week_number != currentFilters.week) return false;
+                return true;
+            });
 
-        // ===== CREED TRACKER FUNCTIONS =====
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h2>No weeks match your filters</h2></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(week => {
+                let content = '';
+                
+                if (currentFilters.programs.littles && week.littles_basic) {
+                    content += renderProgramCard('Littles Basic (4-8 yrs)', week.littles_basic);
+                }
+                if (currentFilters.programs.juniors && week.juniors_basic) {
+                    content += renderProgramCard('Juniors Basic (8-15 yrs)', week.juniors_basic);
+                }
+                if (currentFilters.programs.advanced && week.juniors_advanced) {
+                    content += renderProgramCard('Juniors Advanced', week.juniors_advanced);
+                }
+                if (currentFilters.programs.leadership && week.leadership) {
+                    content += renderProgramCard('Leadership', week.leadership);
+                }
+
+                const isCompleted = completedWeeks.has(week.week_number);
+                const currentClass = week.is_current_week ? 'current-week' : '';
+
+                return `
+                    <div class="week-section ${currentClass}">
+                        <div class="week-header">
+                            <div>
+                                <h2 class="week-title">Week ${week.week_number}</h2>
+                                <div class="week-date">${week.week_dates}</div>
+                                <div class="cycle-info">${week.cycle}</div>
+                            </div>
+                            <div class="week-actions">
+                                <label class="completion-checkbox">
+                                    <input type="checkbox" ${isCompleted ? 'checked' : ''} 
+                                           onchange="toggleCompletion(${week.week_number})">
+                                    <span>Complete</span>
+                                </label>
+                                <button onclick="exportWeek(${week.week_number})">Export</button>
+                            </div>
+                        </div>
+                        <div class="programs-grid">${content}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderProgramCard(title, data) {
+            let content = '';
+            
+            if (typeof data === 'string') {
+                content = `<div class="technique">• ${data}</div>`;
+            } else {
+                const theme = data.Theme || '';
+                const techniques = [];
+                
+                if (data.Class_A_Technique) techniques.push(`• Class A (Mon, Tue, Fri): ${data.Class_A_Technique}`);
+                if (data.Class_A_Drill) techniques.push(`• Drill A (Mon, Tue, Fri): ${data.Class_A_Drill}`);
+                if (data.Class_A_BBT) techniques.push(`• BBT A (Mon, Tue, Fri): ${data.Class_A_BBT}`);
+                if (data.Class_B_Technique) techniques.push(`• Class B (Wed, Thu, Sat): ${data.Class_B_Technique}`);
+                if (data.Class_B_Drill) techniques.push(`• Drill B (Wed, Thu, Sat): ${data.Class_B_Drill}`);
+                if (data.Class_B_BBT) techniques.push(`• BBT B (Wed, Thu, Sat): ${data.Class_B_BBT}`);
+                
+                if (theme) content += `<div class="theme">Theme: ${theme}</div>`;
+                content += techniques.map(t => `<div class="technique">${t}</div>`).join('');
+            }
+
+            return `
+                <div class="program-card">
+                    <h3 class="program-title">${title}</h3>
+                    <div class="techniques-list">${content}</div>
+                </div>
+            `;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('weekFilter')?.addEventListener('change', e => {
+                currentFilters.week = e.target.value || null;
+                renderCurriculum();
+            });
+
+            ['littles', 'juniors', 'advanced', 'leadership'].forEach(prog => {
+                document.getElementById(prog + 'Filter')?.addEventListener('change', e => {
+                    currentFilters.programs[prog] = e.target.checked;
+                    renderCurriculum();
+                });
+            });
+
+            document.getElementById('searchInput')?.addEventListener('input', e => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.technique').forEach(el => {
+                    const text = el.textContent.toLowerCase();
+                    el.style.display = text.includes(term) || term === '' ? '' : 'none';
+                });
+            });
+        }
+
+        function toggleCompletion(weekNum) {
+            if (completedWeeks.has(weekNum)) {
+                completedWeeks.delete(weekNum);
+            } else {
+                completedWeeks.add(weekNum);
+            }
+            localStorage.setItem('completedWeeks', JSON.stringify([...completedWeeks]));
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = CURRICULUM_DATA.length;
+            const completed = completedWeeks.size;
+            const remaining = total - completed;
+            
+            document.getElementById('totalWeeks').textContent = total;
+            document.getElementById('completedWeeks').textContent = completed;
+            document.getElementById('remainingWeeks').textContent = remaining;
+        }
+
+        function clearCompleted() {
+            if (confirm('Clear all completed weeks?')) {
+                completedWeeks.clear();
+                localStorage.removeItem('completedWeeks');
+                renderCurriculum();
+                updateStats();
+            }
+        }
+
+        function printCurriculum() {
+            window.print();
+        }
+
+        function exportWeek(weekNum) {
+            const week = CURRICULUM_DATA.find(w => w.week_number == weekNum);
+            if (!week) return;
+            
+            let text = `Week ${week.week_number} - ${week.week_dates}\n${week.cycle}\n\n`;
+            
+            if (week.littles_basic) text += exportProgram('Littles Basic', week.littles_basic);
+            if (week.juniors_basic) text += exportProgram('Juniors Basic', week.juniors_basic);
+            if (week.juniors_advanced) text += exportProgram('Juniors Advanced', week.juniors_advanced);
+            if (week.leadership) text += `LEADERSHIP:\n${week.leadership}\n\n`;
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `week-${weekNum}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportProgram(title, data) {
+            let text = `${title.toUpperCase()}:\n`;
+            if (typeof data === 'string') {
+                text += `${data}\n\n`;
+            } else {
+                if (data.Theme) text += `Theme: ${data.Theme}\n`;
+                if (data.Class_A_Technique) text += `Class A: ${data.Class_A_Technique}\n`;
+                if (data.Class_A_Drill) text += `Drill A: ${data.Class_A_Drill}\n`;
+                if (data.Class_A_BBT) text += `BBT A: ${data.Class_A_BBT}\n`;
+                if (data.Class_B_Technique) text += `Class B: ${data.Class_B_Technique}\n`;
+                if (data.Class_B_Drill) text += `Drill B: ${data.Class_B_Drill}\n`;
+                if (data.Class_B_BBT) text += `BBT B: ${data.Class_B_BBT}\n`;
+                text += '\n';
+            }
+            return text;
+        }
+
+        // ===== CREED TRACKER =====
         let currentEditId = null;
         let selectedRating = 0;
         let creedFilters = { student: '', dateFrom: '', dateTo: '', rating: '' };
 
-        // Star Rating Setup
         document.addEventListener('DOMContentLoaded', function() {
             const stars = document.querySelectorAll('.star');
-            if (stars.length > 0) {
-                stars.forEach(star => {
-                    star.addEventListener('click', function() {
-                        selectedRating = parseInt(this.dataset.rating);
-                        updateStarDisplay();
-                    });
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    updateStarDisplay();
                 });
-            }
+            });
             const dateInput = document.getElementById('recitationDate');
-            if (dateInput) {
-                dateInput.value = new Date().toISOString().split('T')[0];
-            }
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         });
 
         function updateStarDisplay() {
-            const stars = document.querySelectorAll('.star');
-            stars.forEach((star, i) => {
+            document.querySelectorAll('.star').forEach((star, i) => {
                 star.style.color = i < selectedRating ? 'var(--gold)' : '#555';
-                if (i < selectedRating) star.classList.add('active');
-                else star.classList.remove('active');
+                star.classList.toggle('active', i < selectedRating);
             });
         }
 
@@ -1169,22 +1313,17 @@
                     
                     if (entries.length === 0) {
                         displayNoEntries();
-                        updateStats([]);
+                        updateCreedStats([]);
                         return;
                     }
                     
                     entries.sort((a, b) => new Date(b.date) - new Date(a.date));
                     displayCreedEntries(entries);
-                    updateStats(entries);
-                } else {
-                    console.error('Error loading creed data:', result.error);
-                    displayNoEntries();
-                    updateStats([]);
+                    updateCreedStats(entries);
                 }
             } catch (error) {
-                console.error('Error loading creed data:', error);
+                console.error('Error loading creed:', error);
                 displayNoEntries();
-                updateStats([]);
             }
         }
 
@@ -1200,10 +1339,7 @@
             
             const entry = {
                 id: currentEditId || Date.now().toString(),
-                name: name,
-                date: date,
-                rating: selectedRating,
-                notes: notes,
+                name, date, rating: selectedRating, notes,
                 timestamp: new Date().toISOString()
             };
             
@@ -1212,7 +1348,7 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: action, entry: entry })
+                    body: JSON.stringify({ action, entry })
                 });
                 
                 const result = await response.json();
@@ -1225,13 +1361,10 @@
                     updateStarDisplay();
                     cancelEdit();
                     await loadCreedData();
-                    alert(currentEditId ? 'Entry updated!' : 'Entry added!');
-                } else {
-                    alert('Error saving: ' + (result.error || 'Unknown error'));
+                    alert(currentEditId ? 'Updated!' : 'Added!');
                 }
             } catch (error) {
-                console.error('Error saving:', error);
-                alert('Error connecting to Google Sheets: ' + error.message);
+                alert('Error: ' + error.message);
             }
         }
 
@@ -1246,7 +1379,7 @@
             });
             
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state-creed"><h2 style="font-family: \'Bebas Neue\', sans-serif; font-size: 2rem; color: var(--primary-blue);">No Matching Entries</h2><p>Try adjusting your filters.</p></div>';
+                container.innerHTML = '<div class="empty-state-creed"><h2>No Matching Entries</h2><p>Try adjusting filters.</p></div>';
                 return;
             }
             
@@ -1255,9 +1388,9 @@
                     <div class="entry-header">
                         <div>
                             <div class="entry-student">${escapeHtml(entry.name)}</div>
-                            <div class="entry-date">${formatDate(entry.date)}</div>
+                            <div class="entry-date">${formatCreedDate(entry.date)}</div>
                         </div>
-                        <div class="entry-stars">${'★'.repeat(entry.rating)}${'☆'.repeat(5 - entry.rating)}</div>
+                        <div class="entry-stars">${'★'.repeat(entry.rating)}${'☆'.repeat(5-entry.rating)}</div>
                     </div>
                     ${entry.notes ? `<div class="entry-notes">${escapeHtml(entry.notes)}</div>` : ''}
                     <div class="entry-actions">
@@ -1269,19 +1402,17 @@
         }
 
         function displayNoEntries() {
-            document.getElementById('creedList').innerHTML = '<div class="empty-state-creed"><h2 style="font-family: \'Bebas Neue\', sans-serif; font-size: 2rem; color: var(--primary-blue);">No Entries Yet</h2><p>Add your first student creed recitation above!</p></div>';
+            document.getElementById('creedList').innerHTML = '<div class="empty-state-creed"><h2>No Entries Yet</h2><p>Add your first entry above!</p></div>';
         }
 
-        function updateStats(entries) {
+        function updateCreedStats(entries) {
             document.getElementById('totalRecitations').textContent = entries.length;
-            const uniqueNames = new Set(entries.map(e => e.name.toLowerCase()));
-            document.getElementById('uniqueStudents').textContent = uniqueNames.size;
+            document.getElementById('uniqueStudents').textContent = new Set(entries.map(e => e.name.toLowerCase())).size;
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            const thisWeek = entries.filter(e => new Date(e.date) >= oneWeekAgo).length;
-            document.getElementById('thisWeek').textContent = thisWeek;
-            const avgRating = entries.length > 0 ? (entries.reduce((sum, e) => sum + e.rating, 0) / entries.length).toFixed(1) : '0.0';
-            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('thisWeek').textContent = entries.filter(e => new Date(e.date) >= oneWeekAgo).length;
+            const avg = entries.length > 0 ? (entries.reduce((sum, e) => sum + e.rating, 0) / entries.length).toFixed(1) : '0.0';
+            document.getElementById('avgRating').textContent = avg;
         }
 
         async function editCreedEntry(id) {
@@ -1289,16 +1420,10 @@
                 const response = await fetch(API_URL + '?action=getCreed');
                 const result = await response.json();
                 
-                if (!result.success) {
-                    alert('Error loading entry');
-                    return;
-                }
+                if (!result.success) return;
                 
                 const entry = result.data.find(row => String(row.ID) === String(id));
-                if (!entry) {
-                    alert('Entry not found');
-                    return;
-                }
+                if (!entry) return;
                 
                 document.getElementById('studentName').value = entry.Student_Name || '';
                 document.getElementById('recitationDate').value = entry.Date || '';
@@ -1310,7 +1435,6 @@
                 document.getElementById('cancelEditBtn').style.display = 'inline-block';
                 document.querySelector('.creed-form').scrollIntoView({ behavior: 'smooth' });
             } catch (error) {
-                console.error('Error loading entry:', error);
                 alert('Error: ' + error.message);
             }
         }
@@ -1322,7 +1446,7 @@
         }
 
         async function deleteCreedEntry(id) {
-            if (!confirm('Are you sure you want to delete this entry?')) return;
+            if (!confirm('Delete this entry?')) return;
             
             try {
                 const response = await fetch(API_URL, {
@@ -1332,15 +1456,11 @@
                 });
                 
                 const result = await response.json();
-                
                 if (result.success) {
                     await loadCreedData();
-                    alert('Entry deleted!');
-                } else {
-                    alert('Error deleting: ' + (result.error || 'Unknown error'));
+                    alert('Deleted!');
                 }
             } catch (error) {
-                console.error('Error deleting:', error);
                 alert('Error: ' + error.message);
             }
         }
@@ -1394,9 +1514,8 @@
                 a.download = `creed-tracker-${new Date().toISOString().split('T')[0]}.csv`;
                 a.click();
                 URL.revokeObjectURL(url);
-                alert('Exported ' + entries.length + ' entries!');
+                alert('Exported!');
             } catch (error) {
-                console.error('Error exporting:', error);
                 alert('Error: ' + error.message);
             }
         }
@@ -1407,290 +1526,14 @@
             return div.innerHTML;
         }
 
-        function formatDate(dateStr) {
+        function formatCreedDate(dateStr) {
             const date = new Date(dateStr + 'T00:00:00');
             return date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
         }
-        // ===== END CREED TRACKER FUNCTIONS =====
-
 
         async function init() {
             setupEventListeners();
             await loadCurriculumFromSheets();
-        }
-
-        function populateWeekFilter() {
-            const select = document.getElementById('weekFilter');
-            select.innerHTML = '<option value="">All Weeks</option>';
-            
-            CURRICULUM_DATA.forEach(week => {
-                const option = document.createElement('option');
-                option.value = week.week_number;
-                option.textContent = week.week_dates;
-                if (isCurrentWeek(week)) {
-                    option.textContent += ' (Current)';
-                }
-                select.appendChild(option);
-            });
-        }
-
-        function setCurrentWeekAsDefault() {
-            const currentWeek = CURRICULUM_DATA.find(w => isCurrentWeek(w));
-            if (currentWeek) {
-                document.getElementById('weekFilter').value = currentWeek.week_number;
-                currentFilters.week = currentWeek.week_number.toString();
-            }
-        }
-
-        function goToCurrentWeek() {
-            const currentWeek = CURRICULUM_DATA.find(w => isCurrentWeek(w));
-            if (currentWeek) {
-                document.getElementById('weekFilter').value = currentWeek.week_number;
-                currentFilters.week = currentWeek.week_number.toString();
-                renderCurriculum();
-                
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                alert('No current week found in curriculum data');
-            }
-        }
-
-        function setupEventListeners() {
-            document.getElementById('weekFilter').addEventListener('change', e => {
-                currentFilters.week = e.target.value;
-                renderCurriculum();
-            });
-
-            document.getElementById('searchFilter').addEventListener('input', e => {
-                currentFilters.search = e.target.value.toLowerCase();
-                renderCurriculum();
-            });
-
-            document.querySelectorAll('.program-checkbox').forEach(cb => {
-                cb.addEventListener('change', e => {
-                    e.target.checked ? currentFilters.programs.add(e.target.value) : currentFilters.programs.delete(e.target.value);
-                    renderCurriculum();
-                });
-            });
-        }
-
-        function resetFilters() {
-            currentFilters = {
-                week: '',
-                search: '',
-                programs: new Set(['littles_basic', 'juniors_basic', 'juniors_advanced', 'leadership'])
-            };
-            
-            document.getElementById('weekFilter').value = '';
-            document.getElementById('searchFilter').value = '';
-            document.querySelectorAll('.program-checkbox').forEach(cb => cb.checked = true);
-            
-            renderCurriculum();
-        }
-
-        function toggleCompleted(weekNum) {
-            completedWeeks.has(weekNum) ? completedWeeks.delete(weekNum) : completedWeeks.add(weekNum);
-            localStorage.setItem('completedWeeks', JSON.stringify([...completedWeeks]));
-            renderCurriculum();
-            updateStats();
-        }
-
-        function updateStats() {
-            document.getElementById('totalWeeks').textContent = CURRICULUM_DATA.length;
-            document.getElementById('completedWeeks').textContent = completedWeeks.size;
-            document.getElementById('remainingWeeks').textContent = CURRICULUM_DATA.length - completedWeeks.size;
-        }
-
-        function filterData() {
-            return CURRICULUM_DATA.filter(week => {
-                if (currentFilters.week && week.week_number.toString() !== currentFilters.week) return false;
-                if (currentFilters.search) {
-                    const searchStr = JSON.stringify(week).toLowerCase();
-                    if (!searchStr.includes(currentFilters.search)) return false;
-                }
-                return true;
-            });
-        }
-
-        function isCurrentWeek(week) {
-            if (!week.week_dates) return false;
-            
-            try {
-                const today = new Date();
-                const currentYear = today.getFullYear();
-                
-                // Parse date range (e.g., "Feb 09 - Feb 15")
-                const parts = week.week_dates.split(' - ');
-                if (parts.length !== 2) return false;
-                
-                // Convert "Feb 09" to "2026-02-09" format for Safari
-                const monthMap = {
-                    'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
-                    'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
-                    'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
-                };
-                
-                function parseDate(dateStr, year) {
-                    const [month, day] = dateStr.trim().split(' ');
-                    const monthNum = monthMap[month];
-                    if (!monthNum) return null;
-                    
-                    const paddedDay = day.padStart(2, '0');
-                    // Safari-safe format: YYYY-MM-DD
-                    return new Date(year + '-' + monthNum + '-' + paddedDay);
-                }
-                
-                const start = parseDate(parts[0], currentYear);
-                const end = parseDate(parts[1], currentYear);
-                
-                if (!start || !end) return false;
-                
-                // Set time to midnight for accurate comparison
-                today.setHours(0, 0, 0, 0);
-                start.setHours(0, 0, 0, 0);
-                end.setHours(23, 59, 59, 999);
-                
-                return today >= start && today <= end;
-            } catch (e) {
-                console.error('Date parsing error:', e);
-                return false;
-            }
-        }
-
-        function renderCurriculum() {
-            const container = document.getElementById('curriculum-container');
-            const filtered = filterData();
-
-            if (!filtered.length) {
-                container.innerHTML = '<div class="empty-state"><h2>No Results Found</h2><p>Try adjusting your filters.</p></div>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(week => {
-                const isCompleted = completedWeeks.has(week.week_number);
-                const isCurrent = isCurrentWeek(week);
-                
-                return `
-                    <div class="week-section">
-                        <div class="week-header ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}">
-                            <div class="week-info">
-                                <div class="week-title">${week.cycle}</div>
-                                <div class="week-date">${week.week_dates}</div>
-                            </div>
-                            <div class="week-actions">
-                                <button onclick="toggleCompleted(${week.week_number})">${isCompleted ? '✓ Completed' : 'Mark Complete'}</button>
-                                <button onclick="printWeek(${week.week_number})">Print</button>
-                            </div>
-                        </div>
-                        <div class="programs-grid">
-                            ${renderProgram('Littles Basic', week.littles_basic, 'littles_basic', 'littles')}
-                            ${renderProgram('Juniors Basic', week.juniors_basic, 'juniors_basic', 'juniors')}
-                            ${renderProgram('Juniors Advanced', week.juniors_advanced, 'juniors_advanced', 'advanced')}
-                            ${renderProgram('Leadership', week.leadership, 'leadership', 'leadership')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderProgram(title, data, programKey, colorClass) {
-            if (!currentFilters.programs.has(programKey)) return '';
-            if (!data || (typeof data === 'object' && !data.Class_A_Technique && !data.Class_B_Technique)) return '';
-            
-            let content = '';
-            
-            if (typeof data === 'string') {
-                // Leadership
-                content = `<div class="technique">• ${data}</div>`;
-            } else {
-                // Program with structure
-                const theme = data.Theme || '';
-                const techniques = [];
-                
-                if (data.Class_A_Technique) techniques.push(`• Class A (Mon, Tue, Fri): ${data.Class_A_Technique}`);
-                if (data.Class_A_Drill) techniques.push(`• Drill A (Mon, Tue, Fri): ${data.Class_A_Drill}`);
-                if (data.Class_A_BBT) techniques.push(`• BBT A (Mon, Tue, Fri): ${data.Class_A_BBT}`);
-                if (data.Class_B_Technique) techniques.push(`• Class B (Wed, Thu, Sat): ${data.Class_B_Technique}`);
-                if (data.Class_B_Drill) techniques.push(`• Drill B (Wed, Thu, Sat): ${data.Class_B_Drill}`);
-                if (data.Class_B_BBT) techniques.push(`• BBT B (Wed, Thu, Sat): ${data.Class_B_BBT}`);
-                
-                const highlightTerm = currentFilters.search;
-                content = (theme ? `<div class="theme">${theme}</div>` : '') +
-                    techniques.map(tech => {
-                        const cls = highlightTerm && tech.toLowerCase().includes(highlightTerm) ? 'technique highlight' : 'technique';
-                        return `<div class="${cls}">${tech}</div>`;
-                    }).join('');
-            }
-            
-            return `
-                <div class="program-card ${colorClass}">
-                    <div class="program-title">${title}</div>
-                    ${content}
-                </div>
-            `;
-        }
-
-        function printWeek(weekNum) {
-            currentFilters.week = weekNum.toString();
-            renderCurriculum();
-            setTimeout(() => {
-                window.print();
-                currentFilters.week = '';
-                renderCurriculum();
-            }, 100);
-        }
-
-        function exportWeek() {
-            const weekNum = currentFilters.week || (() => {
-                const input = prompt('Enter week number (1-48):');
-                if (!input) return null;
-                const num = parseInt(input, 10);
-                return (num >= 1 && num <= 48) ? num : null;
-            })();
-            if (!weekNum) return;
-            
-            const week = CURRICULUM_DATA.find(w => w.week_number.toString() === weekNum.toString());
-            if (!week) { alert('Week not found'); return; }
-            
-            let exportData = `No Limit Martial Arts - ${week.cycle}\n${week.week_dates}\n\n`;
-            
-            ['littles_basic', 'juniors_basic', 'juniors_advanced', 'leadership'].forEach(prog => {
-                const data = week[prog];
-                if (!data) return;
-                
-                const title = prog.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                exportData += `${title}:\n`;
-                
-                if (typeof data === 'string') {
-                    exportData += `  • ${data}\n`;
-                } else {
-                    if (data.Theme) exportData += `  ${data.Theme}\n`;
-                    if (data.Class_A_Technique) exportData += `  • Class A (Mon, Tue, Fri): ${data.Class_A_Technique}\n`;
-                    if (data.Class_A_Drill) exportData += `  • Drill A (Mon, Tue, Fri): ${data.Class_A_Drill}\n`;
-                    if (data.Class_A_BBT) exportData += `  • BBT A (Mon, Tue, Fri): ${data.Class_A_BBT}\n`;
-                    if (data.Class_B_Technique) exportData += `  • Class B (Wed, Thu, Sat): ${data.Class_B_Technique}\n`;
-                    if (data.Class_B_Drill) exportData += `  • Drill B (Wed, Thu, Sat): ${data.Class_B_Drill}\n`;
-                    if (data.Class_B_BBT) exportData += `  • BBT B (Wed, Thu, Sat): ${data.Class_B_BBT}\n`;
-                }
-                exportData += '\n';
-            });
-            
-            const blob = new Blob([exportData], {type: 'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `nolimit-week-${weekNum}.txt`;
-            a.click();
-        }
-
-        function clearAllCompleted() {
-            if (confirm('Are you sure you want to clear all completed weeks? This cannot be undone.')) {
-                completedWeeks.clear();
-                localStorage.removeItem('completedWeeks');
-                renderCurriculum();
-                updateStats();
-                alert('All completed weeks have been cleared!');
-            }
         }
 
         init();
