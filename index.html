@@ -963,7 +963,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzgbbiP2K-THExUCqFnTcM1BeiqSS_awXpXj2iVfIFqXmzA9c2sK8WzUCdlyRgCWDFf/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzhn3NSl7qrA9xESwgbKJmGpx8u_aS2eha8B2FkI_53VoCKJpNGg5EKq3icJPr31j9X/exec';
         let CURRICULUM_DATA = [];
         
         // Load curriculum from Google Sheets
@@ -1337,20 +1337,23 @@
                 return;
             }
             
-            const entry = {
-                id: currentEditId || Date.now().toString(),
-                name, date, rating: selectedRating, notes,
-                timestamp: new Date().toISOString()
-            };
+            const id = currentEditId || Date.now().toString();
+            const timestamp = new Date().toISOString();
+            const action = currentEditId ? 'updateCreed' : 'addCreed';
+            
+            // Build URL with query parameters (GET request to avoid CORS)
+            const params = new URLSearchParams({
+                action: action,
+                id: id,
+                name: name,
+                date: date,
+                rating: selectedRating,
+                notes: notes,
+                timestamp: timestamp
+            });
             
             try {
-                const action = currentEditId ? 'updateCreed' : 'addCreed';
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action, entry })
-                });
-                
+                const response = await fetch(API_URL + '?' + params.toString());
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1362,6 +1365,8 @@
                     cancelEdit();
                     await loadCreedData();
                     alert(currentEditId ? 'Updated!' : 'Added!');
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
                 alert('Error: ' + error.message);
@@ -1449,16 +1454,19 @@
             if (!confirm('Delete this entry?')) return;
             
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'deleteCreed', id: String(id) })
+                const params = new URLSearchParams({
+                    action: 'deleteCreed',
+                    id: String(id)
                 });
                 
+                const response = await fetch(API_URL + '?' + params.toString());
                 const result = await response.json();
+                
                 if (result.success) {
                     await loadCreedData();
                     alert('Deleted!');
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
                 alert('Error: ' + error.message);
