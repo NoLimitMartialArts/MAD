@@ -1565,6 +1565,11 @@
         }
 
         async function init() {
+            // Ensure date field has today's date
+            const recitationDateField = document.getElementById('recitationDate');
+            if (recitationDateField && !recitationDateField.value) {
+                recitationDateField.value = new Date().toISOString().split('T')[0];
+            }
             setupEventListeners();
             await loadCurriculumFromSheets();
         }
