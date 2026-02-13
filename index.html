@@ -227,547 +227,593 @@ Every student is required to attend an A and B day every week.
 </div>
 </div>
 <script>
-const API_URL='https:
-let CURRICULUM_DATA=[];
-async function loadCurriculumFromSheets(){
+const API_URL = 'https:
+let CURRICULUM_DATA=[]; 
+async 
+        function loadCurriculumFromSheets(){
 try{
-const response=await fetch(API_URL+'?action=getCurriculum');
-const result=await response.json();
+const response = await fetch(API_URL+'?action = getCurriculum'); 
+const result = await response.json(); 
 if(result.success&&result.data&&result.data.length>0){
-CURRICULUM_DATA=result.data.map(row=>({
-week_number:row.Week_Number||'',
-cycle:row.Cycle||'',
-week_dates:row.Week_Dates||'',
-is_current_week:false,
+CURRICULUM_DATA = result.data.map(row=>({
+week_number:row.Week_Number||'', 
+cycle:row.Cycle||'', 
+week_dates:row.Week_Dates||'', 
+is_current_week:false, 
 littles_basic:{
-Theme:row.Littles_Basic_Theme||'',
-Class_A_Technique:row.Littles_Basic_Class_A_Technique||'',
-Class_A_Drill:row.Littles_Basic_Class_A_Drill||'',
-Class_A_BBT:row.Littles_Basic_Class_A_BBT||'',
-Class_B_Technique:row.Littles_Basic_Class_B_Technique||'',
-Class_B_Drill:row.Littles_Basic_Class_B_Drill||'',
+Theme:row.Littles_Basic_Theme||'', 
+Class_A_Technique:row.Littles_Basic_Class_A_Technique||'', 
+Class_A_Drill:row.Littles_Basic_Class_A_Drill||'', 
+Class_A_BBT:row.Littles_Basic_Class_A_BBT||'', 
+Class_B_Technique:row.Littles_Basic_Class_B_Technique||'', 
+Class_B_Drill:row.Littles_Basic_Class_B_Drill||'', 
 Class_B_BBT:row.Littles_Basic_Class_B_BBT||''
-},
+}, 
 juniors_basic:{
-Theme:row.Juniors_Basic_Theme||'',
-Class_A_Technique:row.Juniors_Basic_Class_A_Technique||'',
-Class_A_Drill:row.Juniors_Basic_Class_A_Drill||'',
-Class_A_BBT:row.Juniors_Basic_Class_A_BBT||'',
-Class_B_Technique:row.Juniors_Basic_Class_B_Technique||'',
-Class_B_Drill:row.Juniors_Basic_Class_B_Drill||'',
+Theme:row.Juniors_Basic_Theme||'', 
+Class_A_Technique:row.Juniors_Basic_Class_A_Technique||'', 
+Class_A_Drill:row.Juniors_Basic_Class_A_Drill||'', 
+Class_A_BBT:row.Juniors_Basic_Class_A_BBT||'', 
+Class_B_Technique:row.Juniors_Basic_Class_B_Technique||'', 
+Class_B_Drill:row.Juniors_Basic_Class_B_Drill||'', 
 Class_B_BBT:row.Juniors_Basic_Class_B_BBT||''
-},
+}, 
 juniors_advanced:{
-Theme:row.Juniors_Advanced_Theme||'',
-Class_A_Technique:row.Juniors_Advanced_Class_A_Technique||'',
-Class_A_Drill:row.Juniors_Advanced_Class_A_Drill||'',
-Class_A_BBT:row.Juniors_Advanced_Class_A_BBT||'',
-Class_B_Technique:row.Juniors_Advanced_Class_B_Technique||'',
-Class_B_Drill:row.Juniors_Advanced_Class_B_Drill||'',
+Theme:row.Juniors_Advanced_Theme||'', 
+Class_A_Technique:row.Juniors_Advanced_Class_A_Technique||'', 
+Class_A_Drill:row.Juniors_Advanced_Class_A_Drill||'', 
+Class_A_BBT:row.Juniors_Advanced_Class_A_BBT||'', 
+Class_B_Technique:row.Juniors_Advanced_Class_B_Technique||'', 
+Class_B_Drill:row.Juniors_Advanced_Class_B_Drill||'', 
 Class_B_BBT:row.Juniors_Advanced_Class_B_BBT||''
-},
+}, 
 leadership:row.Leadership||''
-}));
-console.log('Loaded',CURRICULUM_DATA.length,'weeks from Google Sheets');
-populateWeekFilter();
-setCurrentWeekAsDefault();
-renderCurriculum();
-updateStats();
-}else{
-console.error('No curriculum data received');
-alert('Error:No curriculum data found in Google Sheets');
+})); 
+console.log('Loaded', CURRICULUM_DATA.length, 'weeks from Google Sheets'); 
+populateWeekFilter(); 
+setCurrentWeekAsDefault(); 
+renderCurriculum(); 
+updateStats(); 
 }
-}catch(error){
-console.error('Error loading curriculum:',error);
-alert('Error connecting to Google Sheets:'+error.message);
+        else{
+console.error('No curriculum data received'); 
+alert('Error:No curriculum data found in Google Sheets'); 
 }
 }
-function setCurrentWeekAsDefault(){
-const today=new Date();
+        catch(error){
+console.error('Error loading curriculum:', error); 
+alert('Error connecting to Google Sheets:'+error.message); 
+}
+}
+
+        function setCurrentWeekAsDefault(){
+const today = new Date(); 
 CURRICULUM_DATA.forEach(week=>{
-const[start,end]=week.week_dates.split('-');
-const startDate=parseDate(start+',2026');
-const endDate=parseDate(end+',2026');
-week.is_current_week=today>=startDate&&today<=endDate;
-});
+const[start, end]=week.week_dates.split('-'); 
+const startDate = parseDate(start+', 2026'); 
+const endDate = parseDate(end+', 2026'); 
+week.is_current_week = today>=startDate&&today<=endDate; 
+}); 
 }
-function parseDate(dateStr){
-const parts=dateStr.replace(',','').split(' ');
-const months={'Jan':0,'Feb':1,'Mar':2,'Apr':3,'May':4,'Jun':5,'Jul':6,'Aug':7,'Sep':8,'Oct':9,'Nov':10,'Dec':11};
-const month=months[parts[0]];
-const day=parseInt(parts[1]);
-const year=parseInt(parts[2]);
-return new Date(year,month,day);
+
+        function parseDate(dateStr){
+const parts = dateStr.replace(', ', '').split(' '); 
+const months = {'Jan':0, 'Feb':1, 'Mar':2, 'Apr':3, 'May':4, 'Jun':5, 'Jul':6, 'Aug':7, 'Sep':8, 'Oct':9, 'Nov':10, 'Dec':11}; 
+const month = months[parts[0]]; 
+const day = parseInt(parts[1]); 
+const year = parseInt(parts[2]); 
+return new Date(year, month, day); 
 }
-let currentFilters={week:null,programs:{littles:true,juniors:true,advanced:true,leadership:true}};
+let currentFilters = {week:null, programs:{littles:true, juniors:true, advanced:true, leadership:true}}; 
 let completedWeeks=(()=>{
 try{
-const stored=localStorage.getItem('completedWeeks');
-if(!stored)return new Set();
-const parsed=JSON.parse(stored);
+const stored = localStorage.getItem('completedWeeks'); 
+if(!stored)return new Set(); 
+const parsed = JSON.parse(stored); 
 if(Array.isArray(parsed)&&parsed.every(n=>typeof n==='number')){
-return new Set(parsed);
+return new Set(parsed); 
 }
-return new Set();
-}catch(e){
-console.error('Invalid localStorage data');
-localStorage.removeItem('completedWeeks');
-return new Set();
+return new Set(); 
 }
-})();
-function populateWeekFilter(){
-const select=document.getElementById('weekFilter');
-select.innerHTML='<option value="">All Weeks</option>';
+        catch(e){
+console.error('Invalid localStorage data'); 
+localStorage.removeItem('completedWeeks'); 
+return new Set(); 
+}
+})(); 
+
+        function populateWeekFilter(){
+const select = document.getElementById('weekFilter'); 
+select.innerHTML = '<option value = "">All Weeks</option>'; 
 CURRICULUM_DATA.forEach(week=>{
-const option=document.createElement('option');
-option.value=week.week_number;
-option.textContent=week.week_dates;
-select.appendChild(option);
-});
+const option = document.createElement('option'); 
+option.value = week.week_number; 
+option.textContent = week.week_dates; 
+select.appendChild(option); 
+}); 
 }
-function goToCurrentWeek(){
-const currentWeek=CURRICULUM_DATA.find(w=>w.is_current_week);
+
+        function goToCurrentWeek(){
+const currentWeek = CURRICULUM_DATA.find(w=>w.is_current_week); 
 if(currentWeek){
-currentFilters.week=currentWeek.week_number;
-document.getElementById('weekFilter').value=currentWeek.week_number;
-renderCurriculum();
+currentFilters.week = currentWeek.week_number; 
+document.getElementById('weekFilter').value = currentWeek.week_number; 
+renderCurriculum(); 
 setTimeout(()=>{
-const el=document.querySelector('.week-section.current-week');
-if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-},100);
+const el = document.querySelector('.week-section.current-week'); 
+if(el)el.scrollIntoView({behavior:'smooth', block:'start'}); 
+}, 100); 
 }
 }
-function switchTab(tabName){
-document.querySelectorAll('.tab-content').forEach(tab=>tab.classList.remove('active'));
-document.querySelectorAll('.tab-button').forEach(btn=>btn.classList.remove('active'));
-const selectedTab=document.getElementById(tabName+'-tab');
-if(selectedTab)selectedTab.classList.add('active');
-event.target.classList.add('active');
+
+        function switchTab(tabName){
+document.querySelectorAll('.tab-content').forEach(tab=>tab.classList.remove('active')); 
+document.querySelectorAll('.tab-button').forEach(btn=>btn.classList.remove('active')); 
+const selectedTab = document.getElementById(tabName+'-tab'); 
+if(selectedTab)selectedTab.classList.add('active'); 
+event.target.classList.add('active'); 
 if(tabName==='creed'){
-loadCreedData();
+loadCreedData(); 
 }
 }
-function renderCurriculum(){
-const container=document.getElementById('weeksList');
-const filtered=CURRICULUM_DATA.filter(week=>{
-if(currentFilters.week&&week.week_number!=currentFilters.week)return false;
-return true;
-});
+
+        function renderCurriculum(){
+const container = document.getElementById('weeksList'); 
+const filtered = CURRICULUM_DATA.filter(week=>{
+if(currentFilters.week&&week.week_number!=currentFilters.week)return false; 
+return true; 
+}); 
 if(filtered.length===0){
-container.innerHTML='<div class="empty-state"><h2>No weeks match your filters</h2></div>';
-return;
+container.innerHTML = '<div class = "empty-state"><h2>No weeks match your filters</h2></div>'; 
+return; 
 }
-container.innerHTML=filtered.map(week=>{
-let content='';
+container.innerHTML = filtered.map(week=>{
+let content = ''; 
 if(currentFilters.programs.littles&&week.littles_basic){
-content+=renderProgramCard('Littles Basic(4-8 yrs)',week.littles_basic);
+content+=renderProgramCard('Littles Basic(4-8 yrs)', week.littles_basic); 
 }
 if(currentFilters.programs.juniors&&week.juniors_basic){
-content+=renderProgramCard('Juniors Basic(8-15 yrs)',week.juniors_basic);
+content+=renderProgramCard('Juniors Basic(8-15 yrs)', week.juniors_basic); 
 }
 if(currentFilters.programs.advanced&&week.juniors_advanced){
-content+=renderProgramCard('Juniors Advanced',week.juniors_advanced);
+content+=renderProgramCard('Juniors Advanced', week.juniors_advanced); 
 }
 if(currentFilters.programs.leadership&&week.leadership){
-content+=renderProgramCard('Leadership',week.leadership);
+content+=renderProgramCard('Leadership', week.leadership); 
 }
-const isCompleted=completedWeeks.has(week.week_number);
-const currentClass=week.is_current_week ? 'current-week':'';
+const isCompleted = completedWeeks.has(week.week_number); 
+const currentClass = week.is_current_week ? 'current-week':''; 
 return `
-<div class="week-section ${currentClass}">
-<div class="week-header">
+<div class = "week-section ${currentClass}">
+<div class = "week-header">
 <div>
-<h2 class="week-title">Week ${week.week_number}</h2>
-<div class="week-date">${week.week_dates}</div>
-<div class="cycle-info">${week.cycle}</div>
+<h2 class = "week-title">Week ${week.week_number}</h2>
+<div class = "week-date">${week.week_dates}</div>
+<div class = "cycle-info">${week.cycle}</div>
 </div>
-<div class="week-actions">
-<label class="completion-checkbox">
-<input type="checkbox" ${isCompleted ? 'checked':''}
-onchange="toggleCompletion(${week.week_number})">
+<div class = "week-actions">
+<label class = "completion-checkbox">
+<input type = "checkbox" ${isCompleted ? 'checked':''}
+onchange = "toggleCompletion(${week.week_number})">
 <span>Complete</span>
 </label>
-<button onclick="exportWeek(${week.week_number})">Export</button>
+<button onclick = "exportWeek(${week.week_number})">Export</button>
 </div>
 </div>
-<div class="programs-grid">${content}</div>
+<div class = "programs-grid">${content}</div>
 </div>
-`;
-}).join('');
+`; 
+}).join(''); 
 }
-function renderProgramCard(title,data){
-let content='';
+
+        function renderProgramCard(title, data){
+let content = ''; 
 if(typeof data==='string'){
-content=`<div class="technique">• ${data}</div>`;
-}else{
-const theme=data.Theme||'';
-const techniques=[];
-if(data.Class_A_Technique)techniques.push(`• Class A(Mon,Tue,Fri):${data.Class_A_Technique}`);
-if(data.Class_A_Drill)techniques.push(`• Drill A(Mon,Tue,Fri):${data.Class_A_Drill}`);
-if(data.Class_A_BBT)techniques.push(`• BBT A(Mon,Tue,Fri):${data.Class_A_BBT}`);
-if(data.Class_B_Technique)techniques.push(`• Class B(Wed,Thu,Sat):${data.Class_B_Technique}`);
-if(data.Class_B_Drill)techniques.push(`• Drill B(Wed,Thu,Sat):${data.Class_B_Drill}`);
-if(data.Class_B_BBT)techniques.push(`• BBT B(Wed,Thu,Sat):${data.Class_B_BBT}`);
-if(theme)content+=`<div class="theme">Theme:${theme}</div>`;
-content+=techniques.map(t=>`<div class="technique">${t}</div>`).join('');
+content=`<div class = "technique">• ${data}</div>`; 
+}
+        else{
+const theme = data.Theme||''; 
+const techniques=[]; 
+if(data.Class_A_Technique)techniques.push(`• Class A(Mon, Tue, Fri):${data.Class_A_Technique}`); 
+if(data.Class_A_Drill)techniques.push(`• Drill A(Mon, Tue, Fri):${data.Class_A_Drill}`); 
+if(data.Class_A_BBT)techniques.push(`• BBT A(Mon, Tue, Fri):${data.Class_A_BBT}`); 
+if(data.Class_B_Technique)techniques.push(`• Class B(Wed, Thu, Sat):${data.Class_B_Technique}`); 
+if(data.Class_B_Drill)techniques.push(`• Drill B(Wed, Thu, Sat):${data.Class_B_Drill}`); 
+if(data.Class_B_BBT)techniques.push(`• BBT B(Wed, Thu, Sat):${data.Class_B_BBT}`); 
+if(theme)content+=`<div class = "theme">Theme:${theme}</div>`; 
+content+=techniques.map(t=>`<div class = "technique">${t}</div>`).join(''); 
 }
 return `
-<div class="program-card">
-<h3 class="program-title">${title}</h3>
-<div class="techniques-list">${content}</div>
+<div class = "program-card">
+<h3 class = "program-title">${title}</h3>
+<div class = "techniques-list">${content}</div>
 </div>
-`;
+`; 
 }
-function setupEventListeners(){
-document.getElementById('weekFilter')?.addEventListener('change',e=>{
-currentFilters.week=e.target.value||null;
-renderCurriculum();
-});
-['littles','juniors','advanced','leadership'].forEach(prog=>{
-document.getElementById(prog+'Filter')?.addEventListener('change',e=>{
-currentFilters.programs[prog]=e.target.checked;
-renderCurriculum();
-});
-});
-document.getElementById('searchInput')?.addEventListener('input',e=>{
-const term=e.target.value.toLowerCase();
+
+        function setupEventListeners(){
+document.getElementById('weekFilter')?.addEventListener('change', e=>{
+currentFilters.week = e.target.value||null; 
+renderCurriculum(); 
+}); 
+['littles', 'juniors', 'advanced', 'leadership'].forEach(prog=>{
+document.getElementById(prog+'Filter')?.addEventListener('change', e=>{
+currentFilters.programs[prog]=e.target.checked; 
+renderCurriculum(); 
+}); 
+}); 
+document.getElementById('searchInput')?.addEventListener('input', e=>{
+const term = e.target.value.toLowerCase(); 
 document.querySelectorAll('.technique').forEach(el=>{
-const text=el.textContent.toLowerCase();
-el.style.display=text.includes(term)||term==='' ? '':'none';
-});
-});
+const text = el.textContent.toLowerCase(); 
+el.style.display = text.includes(term)||term==='' ? '':'none'; 
+}); 
+}); 
 }
-function toggleCompletion(weekNum){
+
+        function toggleCompletion(weekNum){
 if(completedWeeks.has(weekNum)){
-completedWeeks.delete(weekNum);
-}else{
-completedWeeks.add(weekNum);
+completedWeeks.delete(weekNum); 
 }
-localStorage.setItem('completedWeeks',JSON.stringify([...completedWeeks]));
-updateStats();
+        else{
+completedWeeks.add(weekNum); 
 }
-function updateStats(){
-const total=CURRICULUM_DATA.length;
-const completed=completedWeeks.size;
-const remaining=total-completed;
-document.getElementById('totalWeeks').textContent=total;
-document.getElementById('completedWeeks').textContent=completed;
-document.getElementById('remainingWeeks').textContent=remaining;
+localStorage.setItem('completedWeeks', JSON.stringify([...completedWeeks])); 
+updateStats(); 
 }
-function clearCompleted(){
+
+        function updateStats(){
+const total = CURRICULUM_DATA.length; 
+const completed = completedWeeks.size; 
+const remaining = total-completed; 
+document.getElementById('totalWeeks').textContent = total; 
+document.getElementById('completedWeeks').textContent = completed; 
+document.getElementById('remainingWeeks').textContent = remaining; 
+}
+
+        function clearCompleted(){
 if(confirm('Clear all completed weeks?')){
-completedWeeks.clear();
-localStorage.removeItem('completedWeeks');
-renderCurriculum();
-updateStats();
+completedWeeks.clear(); 
+localStorage.removeItem('completedWeeks'); 
+renderCurriculum(); 
+updateStats(); 
 }
 }
-function printCurriculum(){
-window.print();
+
+        function printCurriculum(){
+window.print(); 
 }
-function exportWeek(weekNum){
-const week=CURRICULUM_DATA.find(w=>w.week_number==weekNum);
-if(!week)return;
-let text=`Week ${week.week_number}-${week.week_dates}\n${week.cycle}\n\n`;
-if(week.littles_basic)text+=exportProgram('Littles Basic',week.littles_basic);
-if(week.juniors_basic)text+=exportProgram('Juniors Basic',week.juniors_basic);
-if(week.juniors_advanced)text+=exportProgram('Juniors Advanced',week.juniors_advanced);
-if(week.leadership)text+=`LEADERSHIP:\n${week.leadership}\n\n`;
-const blob=new Blob([text],{type:'text/plain'});
-const url=URL.createObjectURL(blob);
-const a=document.createElement('a');
-a.href=url;
-a.download=`week-${weekNum}.txt`;
-a.click();
-URL.revokeObjectURL(url);
+
+        function exportWeek(weekNum){
+const week = CURRICULUM_DATA.find(w=>w.week_number==weekNum); 
+if(!week)return; 
+let text=`Week ${week.week_number}-${week.week_dates}\n${week.cycle}\n\n`; 
+if(week.littles_basic)text+=exportProgram('Littles Basic', week.littles_basic); 
+if(week.juniors_basic)text+=exportProgram('Juniors Basic', week.juniors_basic); 
+if(week.juniors_advanced)text+=exportProgram('Juniors Advanced', week.juniors_advanced); 
+if(week.leadership)text+=`LEADERSHIP:\n${week.leadership}\n\n`; 
+const blob = new Blob([text], {type:'text/plain'}); 
+const url = URL.createObjectURL(blob); 
+const a = document.createElement('a'); 
+a.href = url; 
+a.download=`week-${weekNum}.txt`; 
+a.click(); 
+URL.revokeObjectURL(url); 
 }
-function exportProgram(title,data){
-let text=`${title.toUpperCase()}:\n`;
+
+        function exportProgram(title, data){
+let text=`${title.toUpperCase()}:\n`; 
 if(typeof data==='string'){
-text+=`${data}\n\n`;
-}else{
-if(data.Theme)text+=`Theme:${data.Theme}\n`;
-if(data.Class_A_Technique)text+=`Class A:${data.Class_A_Technique}\n`;
-if(data.Class_A_Drill)text+=`Drill A:${data.Class_A_Drill}\n`;
-if(data.Class_A_BBT)text+=`BBT A:${data.Class_A_BBT}\n`;
-if(data.Class_B_Technique)text+=`Class B:${data.Class_B_Technique}\n`;
-if(data.Class_B_Drill)text+=`Drill B:${data.Class_B_Drill}\n`;
-if(data.Class_B_BBT)text+=`BBT B:${data.Class_B_BBT}\n`;
-text+='\n';
+text+=`${data}\n\n`; 
 }
-return text;
+        else{
+if(data.Theme)text+=`Theme:${data.Theme}\n`; 
+if(data.Class_A_Technique)text+=`Class A:${data.Class_A_Technique}\n`; 
+if(data.Class_A_Drill)text+=`Drill A:${data.Class_A_Drill}\n`; 
+if(data.Class_A_BBT)text+=`BBT A:${data.Class_A_BBT}\n`; 
+if(data.Class_B_Technique)text+=`Class B:${data.Class_B_Technique}\n`; 
+if(data.Class_B_Drill)text+=`Drill B:${data.Class_B_Drill}\n`; 
+if(data.Class_B_BBT)text+=`BBT B:${data.Class_B_BBT}\n`; 
+text+='\n'; 
 }
-let currentEditId=null;
-let selectedRating=0;
-let creedFilters={student:'',dateFrom:'',dateTo:'',rating:''};
-document.addEventListener('DOMContentLoaded',function(){
-const stars=document.querySelectorAll('.star');
+return text; 
+}
+let currentEditId = null; 
+let selectedRating = 0; 
+let creedFilters = {student:'', dateFrom:'', dateTo:'', rating:''}; 
+document.addEventListener('DOMContentLoaded', function(){
+const stars = document.querySelectorAll('.star'); 
 stars.forEach(star=>{
-star.addEventListener('click',function(){
-selectedRating=parseInt(this.dataset.rating);
-updateStarDisplay();
-});
-});
-const dateInput=document.getElementById('recitationDate');
-if(dateInput)dateInput.value=new Date().toISOString().split('T')[0];
-});
-function updateStarDisplay(){
-document.querySelectorAll('.star').forEach((star,i)=>{
-star.style.color=i<selectedRating ? 'var(--gold)':'#555';
-star.classList.toggle('active',i<selectedRating);
-});
+star.addEventListener('click', function(){
+selectedRating = parseInt(this.dataset.rating); 
+updateStarDisplay(); 
+}); 
+}); 
+const dateInput = document.getElementById('recitationDate'); 
+if(dateInput)dateInput.value = new Date().toISOString().split('T')[0]; 
+}); 
+
+        function updateStarDisplay(){
+document.querySelectorAll('.star').forEach((star, i)=>{
+star.style.color = i<selectedRating ? 'var(--gold)':'#555'; 
+star.classList.toggle('active', i<selectedRating); 
+}); 
 }
-async function loadCreedData(){
+async 
+        function loadCreedData(){
 try{
-const response=await fetch(API_URL+'?action=getCreed');
-const result=await response.json();
+const response = await fetch(API_URL+'?action = getCreed'); 
+const result = await response.json(); 
 if(result.success){
-const entries=result.data.map(row=>({
-id:String(row.ID||''),
-name:String(row.Student_Name||''),
-date:String(row.Date||''),
-rating:parseInt(row.Star_Rating)||0,
-notes:String(row.Notes||''),
+const entries = result.data.map(row=>({
+id:String(row.ID||''), 
+name:String(row.Student_Name||''), 
+date:String(row.Date||''), 
+rating:parseInt(row.Star_Rating)||0, 
+notes:String(row.Notes||''), 
 timestamp:String(row.Timestamp||'')
-}));
+})); 
 if(entries.length===0){
-displayNoEntries();
-updateCreedStats([]);
-return;
+displayNoEntries(); 
+updateCreedStats([]); 
+return; 
 }
-entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
-displayCreedEntries(entries);
-updateCreedStats(entries);
-}
-}catch(error){
-console.error('Error loading creed:',error);
-displayNoEntries();
+entries.sort((a, b)=>new Date(b.date)-new Date(a.date)); 
+displayCreedEntries(entries); 
+updateCreedStats(entries); 
 }
 }
-async function saveCreedEntry(){
-const name=document.getElementById('studentName').value.trim();
-const date=document.getElementById('recitationDate').value;
-const notes=document.getElementById('recitationNotes').value.trim();
+        catch(error){
+console.error('Error loading creed:', error); 
+displayNoEntries(); 
+}
+}
+async 
+        function saveCreedEntry(){
+const name = document.getElementById('studentName').value.trim(); 
+const date = document.getElementById('recitationDate').value; 
+const notes = document.getElementById('recitationNotes').value.trim(); 
 if(!name||!date||selectedRating===0){
-alert('Please fill in student name,date,and select a star rating.');
-return;
+alert('Please fill in student name, date, and select a star rating.'); 
+return; 
 }
-const id=currentEditId||Date.now().toString();
-const timestamp=new Date().toISOString();
-const action=currentEditId ? 'updateCreed':'addCreed';
-const params=new URLSearchParams({
-action:action,
-id:id,
-name:name,
-date:date,
-rating:selectedRating,
-notes:notes,
+const id = currentEditId||Date.now().toString(); 
+const timestamp = new Date().toISOString(); 
+const action = currentEditId ? 'updateCreed':'addCreed'; 
+const params = new URLSearchParams({
+action:action, 
+id:id, 
+name:name, 
+date:date, 
+rating:selectedRating, 
+notes:notes, 
 timestamp:timestamp
-});
+}); 
 try{
-const response=await fetch(API_URL+'?'+params.toString());
-const result=await response.json();
+const response = await fetch(API_URL+'?'+params.toString()); 
+const result = await response.json(); 
 if(result.success){
-document.getElementById('studentName').value='';
-document.getElementById('recitationDate').value=new Date().toISOString().split('T')[0];
-document.getElementById('recitationNotes').value='';
-selectedRating=0;
-updateStarDisplay();
-cancelEdit();
-await loadCreedData();
-alert(currentEditId ? 'Updated!':'Added!');
-}else{
-alert('Error:'+(result.error||'Unknown error'));
+document.getElementById('studentName').value = ''; 
+document.getElementById('recitationDate').value = new Date().toISOString().split('T')[0]; 
+document.getElementById('recitationNotes').value = ''; 
+selectedRating = 0; 
+updateStarDisplay(); 
+cancelEdit(); 
+await loadCreedData(); 
+alert(currentEditId ? 'Updated!':'Added!'); 
 }
-}catch(error){
-alert('Error:'+error.message);
+        else{
+alert('Error:'+(result.error||'Unknown error')); 
 }
 }
-function displayCreedEntries(entries){
-const container=document.getElementById('creedList');
-const filtered=entries.filter(entry=>{
-if(creedFilters.student&&!entry.name.toLowerCase().includes(creedFilters.student.toLowerCase()))return false;
-if(creedFilters.dateFrom&&entry.date<creedFilters.dateFrom)return false;
-if(creedFilters.dateTo&&entry.date>creedFilters.dateTo)return false;
-if(creedFilters.rating&&entry.rating<parseInt(creedFilters.rating))return false;
-return true;
-});
+        catch(error){
+alert('Error:'+error.message); 
+}
+}
+
+        function displayCreedEntries(entries){
+const container = document.getElementById('creedList'); 
+const filtered = entries.filter(entry=>{
+if(creedFilters.student&&!entry.name.toLowerCase().includes(creedFilters.student.toLowerCase()))return false; 
+if(creedFilters.dateFrom&&entry.date<creedFilters.dateFrom)return false; 
+if(creedFilters.dateTo&&entry.date>creedFilters.dateTo)return false; 
+if(creedFilters.rating&&entry.rating<parseInt(creedFilters.rating))return false; 
+return true; 
+}); 
 if(filtered.length===0){
-container.innerHTML='<div class="empty-state-creed"><h2>No Matching Entries</h2><p>Try adjusting filters.</p></div>';
-return;
+container.innerHTML = '<div class = "empty-state-creed"><h2>No Matching Entries</h2><p>Try adjusting filters.</p></div>'; 
+return; 
 }
-container.innerHTML=filtered.map(entry=>`
-<div class="creed-entry">
-<div class="entry-header">
+container.innerHTML = filtered.map(entry=>`
+<div class = "creed-entry">
+<div class = "entry-header">
 <div>
-<div class="entry-student">${escapeHtml(entry.name)}</div>
-<div class="entry-date">${formatCreedDate(entry.date)}</div>
+<div class = "entry-student">${escapeHtml(entry.name)}</div>
+<div class = "entry-date">${formatCreedDate(entry.date)}</div>
 </div>
-<div class="entry-stars">${'*'.repeat(entry.rating)}${'*'.repeat(5-entry.rating)}</div>
+<div class = "entry-stars">${'*'.repeat(entry.rating)}${'*'.repeat(5-entry.rating)}</div>
 </div>
-${entry.notes ? `<div class="entry-notes">${escapeHtml(entry.notes)}</div>`:''}
-<div class="entry-actions">
-<button class="btn-small btn-edit" onclick="editCreedEntry('${entry.id}')">Edit</button>
-<button class="btn-small btn-delete" onclick="deleteCreedEntry('${entry.id}')">Delete</button>
+${entry.notes ? `<div class = "entry-notes">${escapeHtml(entry.notes)}</div>`:''}
+<div class = "entry-actions">
+<button class = "btn-small btn-edit" onclick = "editCreedEntry('${entry.id}')">Edit</button>
+<button class = "btn-small btn-delete" onclick = "deleteCreedEntry('${entry.id}')">Delete</button>
 </div>
 </div>
-`).join('');
+`).join(''); 
 }
-function displayNoEntries(){
-document.getElementById('creedList').innerHTML='<div class="empty-state-creed"><h2>No Entries Yet</h2><p>Add your first entry above!</p></div>';
+
+        function displayNoEntries(){
+document.getElementById('creedList').innerHTML = '<div class = "empty-state-creed"><h2>No Entries Yet</h2><p>Add your first entry above!</p></div>'; 
 }
-function updateCreedStats(entries){
-document.getElementById('totalRecitations').textContent=entries.length;
-document.getElementById('uniqueStudents').textContent=new Set(entries.map(e=>e.name.toLowerCase())).size;
-const oneWeekAgo=new Date();
-oneWeekAgo.setDate(oneWeekAgo.getDate()-7);
-document.getElementById('thisWeek').textContent=entries.filter(e=>new Date(e.date)>=oneWeekAgo).length;
-const avg=entries.length>0 ?(entries.reduce((sum,e)=>sum+e.rating,0)/entries.length).toFixed(1):'0.0';
-document.getElementById('avgRating').textContent=avg;
+
+        function updateCreedStats(entries){
+document.getElementById('totalRecitations').textContent = entries.length; 
+document.getElementById('uniqueStudents').textContent = new Set(entries.map(e=>e.name.toLowerCase())).size; 
+const oneWeekAgo = new Date(); 
+oneWeekAgo.setDate(oneWeekAgo.getDate()-7); 
+document.getElementById('thisWeek').textContent = entries.filter(e=>new Date(e.date)>=oneWeekAgo).length; 
+const avg = entries.length>0 ?(entries.reduce((sum, e)=>sum+e.rating, 0)/entries.length).toFixed(1):'0.0'; 
+document.getElementById('avgRating').textContent = avg; 
 }
-async function editCreedEntry(id){
+async 
+        function editCreedEntry(id){
 try{
-const response=await fetch(API_URL+'?action=getCreed');
-const result=await response.json();
-if(!result.success)return;
-const entry=result.data.find(row=>String(row.ID)===String(id));
-if(!entry)return;
-document.getElementById('studentName').value=entry.Student_Name||'';
-document.getElementById('recitationDate').value=entry.Date||'';
-document.getElementById('recitationNotes').value=entry.Notes||'';
-selectedRating=parseInt(entry.Star_Rating)||0;
-updateStarDisplay();
-currentEditId=String(id);
-document.getElementById('saveCreedBtn').textContent='Update Entry';
-document.getElementById('cancelEditBtn').style.display='inline-block';
-document.querySelector('.creed-form').scrollIntoView({behavior:'smooth'});
-}catch(error){
-alert('Error:'+error.message);
+const response = await fetch(API_URL+'?action = getCreed'); 
+const result = await response.json(); 
+if(!result.success)return; 
+const entry = result.data.find(row=>String(row.ID)===String(id)); 
+if(!entry)return; 
+document.getElementById('studentName').value = entry.Student_Name||''; 
+document.getElementById('recitationDate').value = entry.Date||''; 
+document.getElementById('recitationNotes').value = entry.Notes||''; 
+selectedRating = parseInt(entry.Star_Rating)||0; 
+updateStarDisplay(); 
+currentEditId = String(id); 
+document.getElementById('saveCreedBtn').textContent = 'Update Entry'; 
+document.getElementById('cancelEditBtn').style.display = 'inline-block'; 
+document.querySelector('.creed-form').scrollIntoView({behavior:'smooth'}); 
+}
+        catch(error){
+alert('Error:'+error.message); 
 }
 }
-function cancelEdit(){
-currentEditId=null;
-document.getElementById('saveCreedBtn').textContent='Add Entry';
-document.getElementById('cancelEditBtn').style.display='none';
+
+        function cancelEdit(){
+currentEditId = null; 
+document.getElementById('saveCreedBtn').textContent = 'Add Entry'; 
+document.getElementById('cancelEditBtn').style.display = 'none'; 
 }
-async function deleteCreedEntry(id){
-if(!confirm('Delete this entry?'))return;
+async 
+        function deleteCreedEntry(id){
+if(!confirm('Delete this entry?'))return; 
 try{
-const params=new URLSearchParams({
-action:'deleteCreed',
+const params = new URLSearchParams({
+action:'deleteCreed', 
 id:String(id)
-});
-const response=await fetch(API_URL+'?'+params.toString());
-const result=await response.json();
+}); 
+const response = await fetch(API_URL+'?'+params.toString()); 
+const result = await response.json(); 
 if(result.success){
-await loadCreedData();
-alert('Deleted!');
-}else{
-alert('Error:'+(result.error||'Unknown error'));
+await loadCreedData(); 
+alert('Deleted!'); 
 }
-}catch(error){
-alert('Error:'+error.message);
+        else{
+alert('Error:'+(result.error||'Unknown error')); 
 }
 }
-function applyCreedFilters(){
-creedFilters.student=document.getElementById('filterStudent').value;
-creedFilters.dateFrom=document.getElementById('filterDateFrom').value;
-creedFilters.dateTo=document.getElementById('filterDateTo').value;
-creedFilters.rating=document.getElementById('filterRating').value;
-loadCreedData();
+        catch(error){
+alert('Error:'+error.message); 
 }
-function resetCreedFilters(){
-document.getElementById('filterStudent').value='';
-document.getElementById('filterDateFrom').value='';
-document.getElementById('filterDateTo').value='';
-document.getElementById('filterRating').value='';
-creedFilters={student:'',dateFrom:'',dateTo:'',rating:''};
-loadCreedData();
 }
-async function exportCreedData(){
+
+        function applyCreedFilters(){
+creedFilters.student = document.getElementById('filterStudent').value; 
+creedFilters.dateFrom = document.getElementById('filterDateFrom').value; 
+creedFilters.dateTo = document.getElementById('filterDateTo').value; 
+creedFilters.rating = document.getElementById('filterRating').value; 
+loadCreedData(); 
+}
+
+        function resetCreedFilters(){
+document.getElementById('filterStudent').value = ''; 
+document.getElementById('filterDateFrom').value = ''; 
+document.getElementById('filterDateTo').value = ''; 
+document.getElementById('filterRating').value = ''; 
+creedFilters = {student:'', dateFrom:'', dateTo:'', rating:''}; 
+loadCreedData(); 
+}
+async 
+        function exportCreedData(){
 try{
-const response=await fetch(API_URL+'?action=getCreed');
-const result=await response.json();
+const response = await fetch(API_URL+'?action = getCreed'); 
+const result = await response.json(); 
 if(!result.success||!result.data||result.data.length===0){
-alert('No entries to export');
-return;
+alert('No entries to export'); 
+return; 
 }
-const entries=result.data.map(row=>({
-name:row.Student_Name||'',
-date:row.Date||'',
-rating:row.Star_Rating||'',
+const entries = result.data.map(row=>({
+name:row.Student_Name||'', 
+date:row.Date||'', 
+rating:row.Star_Rating||'', 
 notes:row.Notes||''
-}));
-entries.sort((a,b)=>new Date(a.date)-new Date(b.date));
-let csv='Student Name,Date,Star Rating,Notes\n';
+})); 
+entries.sort((a, b)=>new Date(a.date)-new Date(b.date)); 
+let csv = 'Student Name, Date, Star Rating, Notes\n'; 
 entries.forEach(entry=>{
-const notes=(entry.notes||'').replace(/"/g,'""');
-csv+=`"${entry.name}","${entry.date}",${entry.rating},"${notes}"\n`;
-});
-const blob=new Blob([csv],{type:'text/csv'});
-const url=URL.createObjectURL(blob);
-const a=document.createElement('a');
-a.href=url;
-a.download=`creed-tracker-${new Date().toISOString().split('T')[0]}.csv`;
-a.click();
-URL.revokeObjectURL(url);
-alert('Exported!');
-}catch(error){
-alert('Error:'+error.message);
+const notes=(entry.notes||'').replace(/"/g, '""'); 
+csv+=`"${entry.name}", "${entry.date}", ${entry.rating}, "${notes}"\n`; 
+}); 
+const blob = new Blob([csv], {type:'text/csv'}); 
+const url = URL.createObjectURL(blob); 
+const a = document.createElement('a'); 
+a.href = url; 
+a.download=`creed-tracker-${new Date().toISOString().split('T')[0]}.csv`; 
+a.click(); 
+URL.revokeObjectURL(url); 
+alert('Exported!'); 
+}
+        catch(error){
+alert('Error:'+error.message); 
 }
 }
-function escapeHtml(text){
-const div=document.createElement('div');
-div.textContent=text;
-return div.innerHTML;
+
+        function escapeHtml(text){
+const div = document.createElement('div'); 
+div.textContent = text; 
+return div.innerHTML; 
 }
-function formatCreedDate(dateStr){
-if(!dateStr)return 'Invalid Date';
-const parts=dateStr.split('-');
-if(parts.length!==3)return 'Invalid Date';
-const year=parseInt(parts[0]);
-const month=parseInt(parts[1])-1;
-const day=parseInt(parts[2]);
-const date=new Date(year,month,day);
-if(isNaN(date.getTime()))return 'Invalid Date';
-return date.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+
+        function formatCreedDate(dateStr){
+if(!dateStr)return 'Invalid Date'; 
+const parts = dateStr.split('-'); 
+if(parts.length!==3)return 'Invalid Date'; 
+const year = parseInt(parts[0]); 
+const month = parseInt(parts[1])-1; 
+const day = parseInt(parts[2]); 
+const date = new Date(year, month, day); 
+if(isNaN(date.getTime()))return 'Invalid Date'; 
+return date.toLocaleDateString('en-US', {weekday:'short', year:'numeric', month:'short', day:'numeric'}); 
 }
-function resetFilters(){
-currentFilters.week=null;
-currentFilters.programs={littles:true,juniors:true,advanced:true,leadership:true};
-document.getElementById('weekFilter').value='';
-['littles','juniors','advanced','leadership'].forEach(prog=>{
-const checkbox=document.getElementById(prog+'Filter');
-if(checkbox)checkbox.checked=true;
-});
-renderCurriculum();
+
+        function resetFilters(){
+currentFilters.week = null; 
+currentFilters.programs = {littles:true, juniors:true, advanced:true, leadership:true}; 
+document.getElementById('weekFilter').value = ''; 
+['littles', 'juniors', 'advanced', 'leadership'].forEach(prog=>{
+const checkbox = document.getElementById(prog+'Filter'); 
+if(checkbox)checkbox.checked = true; 
+}); 
+renderCurriculum(); 
 }
-function toggleHeader(){
-const header=document.querySelector('.header');
-const controls=document.querySelector('.controls');
-const tabs=document.querySelector('.tab-navigation');
-const toggleBtn=document.getElementById('headerToggle');
-const body=document.body;
-const isCollapsed=header.classList.contains('collapsed');
+
+        function toggleHeader(){
+const header = document.querySelector('.header'); 
+const controls = document.querySelector('.controls'); 
+const tabs = document.querySelector('.tab-navigation'); 
+const toggleBtn = document.getElementById('headerToggle'); 
+const body = document.body; 
+const isCollapsed = header.classList.contains('collapsed'); 
 if(isCollapsed){
-header.classList.remove('collapsed');
-if(controls)controls.classList.remove('collapsed');
-if(tabs)tabs.classList.remove('collapsed');
-body.classList.remove('header-collapsed');
-toggleBtn.textContent='[Menu] Menu';
-}else{
-header.classList.add('collapsed');
-if(controls)controls.classList.add('collapsed');
-if(tabs)tabs.classList.add('collapsed');
-body.classList.add('header-collapsed');
-toggleBtn.textContent='[Show] Show Menu';
+header.classList.remove('collapsed'); 
+if(controls)controls.classList.remove('collapsed'); 
+if(tabs)tabs.classList.remove('collapsed'); 
+body.classList.remove('header-collapsed'); 
+toggleBtn.textContent = '[Menu] Menu'; 
+}
+        else{
+header.classList.add('collapsed'); 
+if(controls)controls.classList.add('collapsed'); 
+if(tabs)tabs.classList.add('collapsed'); 
+body.classList.add('header-collapsed'); 
+toggleBtn.textContent = '[Show] Show Menu'; 
 }
 }
-function printSchedule(){
-const originalTitle=document.title;
-document.title='West Orange Class Schedule-No Limit Martial Arts';
-const scheduleTab=document.getElementById('schedule-tab');
-const printWindow=window.open('','_blank');
+
+        function printSchedule(){
+const originalTitle = document.title; 
+document.title = 'West Orange Class Schedule-No Limit Martial Arts'; 
+const scheduleTab = document.getElementById('schedule-tab'); 
+const printWindow = window.open('', '_blank'); 
 printWindow.document.write(`
 <!DOCTYPE html>
 <html>
@@ -775,93 +821,94 @@ printWindow.document.write(`
 <title>West Orange Class Schedule-No Limit Martial Arts</title>
 <style>
 @page{
-margin:0.5in;
+margin:0.5in; 
 }
 body{
-font-family:Arial,sans-serif;
-margin:0;
-padding:20px;
+font-family:Arial, sans-serif; 
+margin:0; 
+padding:20px; 
 }
 h2{
-color:#5DADE2;
-text-align:center;
-margin-bottom:20px;
+color:#5DADE2; 
+text-align:center; 
+margin-bottom:20px; 
 }
 .info-box{
-background:#f5f5f5;
-padding:15px;
-border-radius:8px;
-margin-bottom:20px;
-text-align:center;
+background:#f5f5f5; 
+padding:15px; 
+border-radius:8px; 
+margin-bottom:20px; 
+text-align:center; 
 }
 .info-box strong{
-color:#F39C12;
+color:#F39C12; 
 }
 img{
-max-width:100%;
-height:auto;
-display:block;
-margin:0 auto;
-border:2px solid #333;
+max-width:100%; 
+height:auto; 
+display:block; 
+margin:0 auto; 
+border:2px solid #333; 
 }
 .location-info{
-margin-top:30px;
-padding:15px;
-background:#f5f5f5;
-border-radius:8px;
+margin-top:30px; 
+padding:15px; 
+background:#f5f5f5; 
+border-radius:8px; 
 }
 .location-info h3{
-color:#5DADE2;
-margin-bottom:10px;
+color:#5DADE2; 
+margin-bottom:10px; 
 }
 .location-info p{
-margin:5px 0;
+margin:5px 0; 
 }
 @media print{
 body{
-print-color-adjust:exact;
--webkit-print-color-adjust:exact;
+print-color-adjust:exact; 
+-webkit-print-color-adjust:exact; 
 }
 }
 </style>
 </head>
 <body>
 <h2>WEST ORANGE CLASS SCHEDULE</h2>
-<div class="info-box">
+<div class = "info-box">
 <p><strong>BBT-Black Belt Training</strong>which means you are on the path to a Black Belt.</p>
 <p>Every student is required to attend an A and B day every week.</p>
 </div>
-<img src="${window.location.origin}${window.location.pathname.substring(0,window.location.pathname.lastIndexOf('/'))}/EMA_Schedule.jpg" alt="Class Schedule">
-<div class="location-info">
+<img src = "${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/EMA_Schedule.jpg" alt = "Class Schedule">
+<div class = "location-info">
 <h3>Location Info:</h3>
-<p><strong>Temporary Location:</strong>100 Valley Way,West Orange,NJ</p>
+<p><strong>Temporary Location:</strong>100 Valley Way, West Orange, NJ</p>
 <p><strong>Permanent Location:</strong>1001 Pleasant Valley Way(coming soon!)</p>
 <p><strong>Phone:</strong>973-228-3424</p>
 <p><strong>Website:</strong>NJKick.com</p>
 </div>
 </body>
 </html>
-`);
-printWindow.document.close();
-printWindow.onload=function(){
+`); 
+printWindow.document.close(); 
+printWindow.onload = function(){
 setTimeout(()=>{
-printWindow.print();
-printWindow.onafterprint=function(){
-printWindow.close();
-};
-},500);
-};
-document.title=originalTitle;
+printWindow.print(); 
+printWindow.onafterprint = function(){
+printWindow.close(); 
+}; 
+}, 500); 
+}; 
+document.title = originalTitle; 
 }
-async function init(){
-const recitationDateField=document.getElementById('recitationDate');
+async 
+        function init(){
+const recitationDateField = document.getElementById('recitationDate'); 
 if(recitationDateField&&!recitationDateField.value){
-recitationDateField.value=new Date().toISOString().split('T')[0];
+recitationDateField.value = new Date().toISOString().split('T')[0]; 
 }
-setupEventListeners();
-await loadCurriculumFromSheets();
+setupEventListeners(); 
+await loadCurriculumFromSheets(); 
 }
-init();
+init(); 
 </script>
 </body>
 </html>
