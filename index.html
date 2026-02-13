@@ -227,12 +227,12 @@ Every student is required to attend an A and B day every week.
 </div>
 </div>
 <script>
-const API_URL = 'https:
-let CURRICULUM_DATA=[]; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbzhn3NSl7qrA9xESwgbKJmGpx8u_aS2eha8B2FkI_53VoCKJpNGg5EKq3icJPr31j9X/exec';
+        let CURRICULUM_DATA=[]; 
 async 
         function loadCurriculumFromSheets(){
 try{
-const response = await fetch(API_URL+'?action = getCurriculum'); 
+const response = await fetch(API_URL + '?action=getCurriculum'); 
 const result = await response.json(); 
 if(result.success&&result.data&&result.data.length>0){
 CURRICULUM_DATA = result.data.map(row=>({
@@ -310,7 +310,7 @@ try{
 const stored = localStorage.getItem('completedWeeks'); 
 if(!stored)return new Set(); 
 const parsed = JSON.parse(stored); 
-if(Array.isArray(parsed)&&parsed.every(n=>typeof n==='number')){
+if(Array.isArray(parsed)&&parsed.every(n=>typeof n === 'number')){
 return new Set(parsed); 
 }
 return new Set(); 
@@ -352,7 +352,7 @@ document.querySelectorAll('.tab-button').forEach(btn=>btn.classList.remove('acti
 const selectedTab = document.getElementById(tabName+'-tab'); 
 if(selectedTab)selectedTab.classList.add('active'); 
 event.target.classList.add('active'); 
-if(tabName==='creed'){
+if(tabName === 'creed'){
 loadCreedData(); 
 }
 }
@@ -363,23 +363,23 @@ const filtered = CURRICULUM_DATA.filter(week=>{
 if(currentFilters.week&&week.week_number!=currentFilters.week)return false; 
 return true; 
 }); 
-if(filtered.length===0){
+if(filtered.length === 0){
 container.innerHTML = '<div class = "empty-state"><h2>No weeks match your filters</h2></div>'; 
 return; 
 }
 container.innerHTML = filtered.map(week=>{
 let content = ''; 
 if(currentFilters.programs.littles&&week.littles_basic){
-content+=renderProgramCard('Littles Basic(4-8 yrs)', week.littles_basic); 
+content += renderProgramCard('Littles Basic(4-8 yrs)', week.littles_basic); 
 }
 if(currentFilters.programs.juniors&&week.juniors_basic){
-content+=renderProgramCard('Juniors Basic(8-15 yrs)', week.juniors_basic); 
+content += renderProgramCard('Juniors Basic(8-15 yrs)', week.juniors_basic); 
 }
 if(currentFilters.programs.advanced&&week.juniors_advanced){
-content+=renderProgramCard('Juniors Advanced', week.juniors_advanced); 
+content += renderProgramCard('Juniors Advanced', week.juniors_advanced); 
 }
 if(currentFilters.programs.leadership&&week.leadership){
-content+=renderProgramCard('Leadership', week.leadership); 
+content += renderProgramCard('Leadership', week.leadership); 
 }
 const isCompleted = completedWeeks.has(week.week_number); 
 const currentClass = week.is_current_week ? 'current-week':''; 
@@ -408,7 +408,7 @@ onchange = "toggleCompletion(${week.week_number})">
 
         function renderProgramCard(title, data){
 let content = ''; 
-if(typeof data==='string'){
+if(typeof data === 'string'){
 content=`<div class = "technique">• ${data}</div>`; 
 }
         else{
@@ -420,8 +420,8 @@ if(data.Class_A_BBT)techniques.push(`• BBT A(Mon, Tue, Fri):${data.Class_A_BBT
 if(data.Class_B_Technique)techniques.push(`• Class B(Wed, Thu, Sat):${data.Class_B_Technique}`); 
 if(data.Class_B_Drill)techniques.push(`• Drill B(Wed, Thu, Sat):${data.Class_B_Drill}`); 
 if(data.Class_B_BBT)techniques.push(`• BBT B(Wed, Thu, Sat):${data.Class_B_BBT}`); 
-if(theme)content+=`<div class = "theme">Theme:${theme}</div>`; 
-content+=techniques.map(t=>`<div class = "technique">${t}</div>`).join(''); 
+if(theme)content += `<div class = "theme">Theme:${theme}</div>`; 
+content += techniques.map(t=>`<div class = "technique">${t}</div>`).join(''); 
 }
 return `
 <div class = "program-card">
@@ -446,7 +446,7 @@ document.getElementById('searchInput')?.addEventListener('input', e=>{
 const term = e.target.value.toLowerCase(); 
 document.querySelectorAll('.technique').forEach(el=>{
 const text = el.textContent.toLowerCase(); 
-el.style.display = text.includes(term)||term==='' ? '':'none'; 
+el.style.display = text.includes(term)||term === '' ? '':'none'; 
 }); 
 }); 
 }
@@ -488,10 +488,10 @@ window.print();
 const week = CURRICULUM_DATA.find(w=>w.week_number==weekNum); 
 if(!week)return; 
 let text=`Week ${week.week_number}-${week.week_dates}\n${week.cycle}\n\n`; 
-if(week.littles_basic)text+=exportProgram('Littles Basic', week.littles_basic); 
-if(week.juniors_basic)text+=exportProgram('Juniors Basic', week.juniors_basic); 
-if(week.juniors_advanced)text+=exportProgram('Juniors Advanced', week.juniors_advanced); 
-if(week.leadership)text+=`LEADERSHIP:\n${week.leadership}\n\n`; 
+if(week.littles_basic)text += exportProgram('Littles Basic', week.littles_basic); 
+if(week.juniors_basic)text += exportProgram('Juniors Basic', week.juniors_basic); 
+if(week.juniors_advanced)text += exportProgram('Juniors Advanced', week.juniors_advanced); 
+if(week.leadership)text += `LEADERSHIP:\n${week.leadership}\n\n`; 
 const blob = new Blob([text], {type:'text/plain'}); 
 const url = URL.createObjectURL(blob); 
 const a = document.createElement('a'); 
@@ -503,18 +503,18 @@ URL.revokeObjectURL(url);
 
         function exportProgram(title, data){
 let text=`${title.toUpperCase()}:\n`; 
-if(typeof data==='string'){
-text+=`${data}\n\n`; 
+if(typeof data === 'string'){
+text += `${data}\n\n`; 
 }
         else{
-if(data.Theme)text+=`Theme:${data.Theme}\n`; 
-if(data.Class_A_Technique)text+=`Class A:${data.Class_A_Technique}\n`; 
-if(data.Class_A_Drill)text+=`Drill A:${data.Class_A_Drill}\n`; 
-if(data.Class_A_BBT)text+=`BBT A:${data.Class_A_BBT}\n`; 
-if(data.Class_B_Technique)text+=`Class B:${data.Class_B_Technique}\n`; 
-if(data.Class_B_Drill)text+=`Drill B:${data.Class_B_Drill}\n`; 
-if(data.Class_B_BBT)text+=`BBT B:${data.Class_B_BBT}\n`; 
-text+='\n'; 
+if(data.Theme)text += `Theme:${data.Theme}\n`; 
+if(data.Class_A_Technique)text += `Class A:${data.Class_A_Technique}\n`; 
+if(data.Class_A_Drill)text += `Drill A:${data.Class_A_Drill}\n`; 
+if(data.Class_A_BBT)text += `BBT A:${data.Class_A_BBT}\n`; 
+if(data.Class_B_Technique)text += `Class B:${data.Class_B_Technique}\n`; 
+if(data.Class_B_Drill)text += `Drill B:${data.Class_B_Drill}\n`; 
+if(data.Class_B_BBT)text += `BBT B:${data.Class_B_BBT}\n`; 
+text += '\n'; 
 }
 return text; 
 }
@@ -542,7 +542,7 @@ star.classList.toggle('active', i<selectedRating);
 async 
         function loadCreedData(){
 try{
-const response = await fetch(API_URL+'?action = getCreed'); 
+const response = await fetch(API_URL + '?action=getCreed'); 
 const result = await response.json(); 
 if(result.success){
 const entries = result.data.map(row=>({
@@ -553,7 +553,7 @@ rating:parseInt(row.Star_Rating)||0,
 notes:String(row.Notes||''), 
 timestamp:String(row.Timestamp||'')
 })); 
-if(entries.length===0){
+if(entries.length === 0){
 displayNoEntries(); 
 updateCreedStats([]); 
 return; 
@@ -573,7 +573,7 @@ async
 const name = document.getElementById('studentName').value.trim(); 
 const date = document.getElementById('recitationDate').value; 
 const notes = document.getElementById('recitationNotes').value.trim(); 
-if(!name||!date||selectedRating===0){
+if(!name||!date||selectedRating === 0){
 alert('Please fill in student name, date, and select a star rating.'); 
 return; 
 }
@@ -620,7 +620,7 @@ if(creedFilters.dateTo&&entry.date>creedFilters.dateTo)return false;
 if(creedFilters.rating&&entry.rating<parseInt(creedFilters.rating))return false; 
 return true; 
 }); 
-if(filtered.length===0){
+if(filtered.length === 0){
 container.innerHTML = '<div class = "empty-state-creed"><h2>No Matching Entries</h2><p>Try adjusting filters.</p></div>'; 
 return; 
 }
@@ -658,10 +658,10 @@ document.getElementById('avgRating').textContent = avg;
 async 
         function editCreedEntry(id){
 try{
-const response = await fetch(API_URL+'?action = getCreed'); 
+const response = await fetch(API_URL + '?action=getCreed'); 
 const result = await response.json(); 
 if(!result.success)return; 
-const entry = result.data.find(row=>String(row.ID)===String(id)); 
+const entry = result.data.find(row=>String(row.ID) === String(id)); 
 if(!entry)return; 
 document.getElementById('studentName').value = entry.Student_Name||''; 
 document.getElementById('recitationDate').value = entry.Date||''; 
@@ -725,9 +725,9 @@ loadCreedData();
 async 
         function exportCreedData(){
 try{
-const response = await fetch(API_URL+'?action = getCreed'); 
+const response = await fetch(API_URL + '?action=getCreed'); 
 const result = await response.json(); 
-if(!result.success||!result.data||result.data.length===0){
+if(!result.success||!result.data||result.data.length === 0){
 alert('No entries to export'); 
 return; 
 }
@@ -741,7 +741,7 @@ entries.sort((a, b)=>new Date(a.date)-new Date(b.date));
 let csv = 'Student Name, Date, Star Rating, Notes\n'; 
 entries.forEach(entry=>{
 const notes=(entry.notes||'').replace(/"/g, '""'); 
-csv+=`"${entry.name}", "${entry.date}", ${entry.rating}, "${notes}"\n`; 
+csv += `"${entry.name}", "${entry.date}", ${entry.rating}, "${notes}"\n`; 
 }); 
 const blob = new Blob([csv], {type:'text/csv'}); 
 const url = URL.createObjectURL(blob); 
@@ -766,7 +766,7 @@ return div.innerHTML;
         function formatCreedDate(dateStr){
 if(!dateStr)return 'Invalid Date'; 
 const parts = dateStr.split('-'); 
-if(parts.length!==3)return 'Invalid Date'; 
+if(parts.length !== 3)return 'Invalid Date'; 
 const year = parseInt(parts[0]); 
 const month = parseInt(parts[1])-1; 
 const day = parseInt(parts[2]); 
