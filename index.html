@@ -988,6 +988,39 @@
         button[onclick="printSchedule()"]:active {
             transform: translateY(0);
         }
+
+        
+        /* Checkbox styling - IMPORTANT */
+        input[type="checkbox"] {
+            width: 18px !important;
+            height: 18px !important;
+            cursor: pointer !important;
+            margin-right: 8px !important;
+            vertical-align: middle !important;
+            appearance: checkbox !important;
+            -webkit-appearance: checkbox !important;
+            -moz-appearance: checkbox !important;
+        }
+        
+        /* Complete button */
+        .complete-btn,
+        button[onclick*="toggleCompletion"] {
+            background: linear-gradient(135deg, var(--gold) 0%, #D68910 100%) !important;
+            color: #000 !important;
+            border: none !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 6px !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: transform 0.2s, box-shadow 0.2s !important;
+        }
+        
+        .complete-btn:hover,
+        button[onclick*="toggleCompletion"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
 </style>
 </head>
 <body>
@@ -1553,10 +1586,7 @@
                 });
             });
             const dateInput = document.getElementById('recitationDate');
-            if (dateInput) {
-                const t = new Date();
-                dateInput.value = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
-            }
+            if (dateInput) { const t = new Date(); dateInput.value = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
         });
 
         function updateStarDisplay() {
@@ -1874,7 +1904,8 @@
                 <html>
                 <head>
                     <title>West Orange Class Schedule - No Limit Martial Arts</title>
-                    <style>                        @page {
+                    <style>
+                        @page {
                             margin: 0.25in;
                             size: letter;
                         }
@@ -1920,12 +1951,11 @@
                             font-size: 9pt;
                         }
                         .location-info h3 {
-                            color: #000;
-                            margin-bottom: 3px;
-                            font-size: 11pt;
+                            color: #5DADE2;
+                            margin-bottom: 10px;
                         }
                         .location-info p {
-                            margin: 1px 0;
+                            margin: 5px 0;
                         }
                         @media print {
                             body {
@@ -1973,7 +2003,26 @@
         }
 
 
+        
+        // Setup program checkboxes to update currentFilters
+        function setupProgramFilters() {
+            const checkboxes = document.querySelectorAll('.program-checkbox');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    // Update currentFilters based on checkbox values
+                    currentFilters.programs.littles = document.querySelector('input[value="littles_basic"]')?.checked || false;
+                    currentFilters.programs.juniors = document.querySelector('input[value="juniors_basic"]')?.checked || false;
+                    currentFilters.programs.advanced = document.querySelector('input[value="juniors_advanced"]')?.checked || false;
+                    currentFilters.programs.leadership = document.querySelector('input[value="leadership"]')?.checked || false;
+                    
+                    // Re-render
+                    renderCurriculum();
+                });
+            });
+        }
+
         async function init() {
+            setupProgramFilters();
             // Ensure date field has today's date
             const recitationDateField = document.getElementById('recitationDate');
             if (recitationDateField && !recitationDateField.value) {
