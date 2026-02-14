@@ -1371,7 +1371,14 @@
                 star.addEventListener('click', function() {
                     selectedRating = parseInt(this.dataset.rating);
                     updateStarDisplay();
-                });
+                
+            
+            // Set default date to today
+            const dateInput = document.getElementById('recitationDate');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+});
             });
             const dateInput = document.getElementById('recitationDate');
             if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
