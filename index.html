@@ -1553,7 +1553,10 @@
                 });
             });
             const dateInput = document.getElementById('recitationDate');
-            if (dateInput) const t=new Date();dateInput.value=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+            if (dateInput) {
+                const t = new Date();
+                dateInput.value = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+            }
         });
 
         function updateStarDisplay() {
