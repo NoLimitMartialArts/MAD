@@ -990,7 +990,7 @@
         }
 
         
-        /* Checkbox styling - IMPORTANT */
+        /* Checkbox styling */
         input[type="checkbox"] {
             width: 18px !important;
             height: 18px !important;
@@ -1079,7 +1079,7 @@
                 <button onclick="resetFilters()">Reset Filters</button>
                 <button onclick="clearAllCompleted()">Clear Completed</button>
                 <button onclick="window.print()">Print View</button>
-                <button onclick="exportWeek()">Export Week</button>
+                
             </div>
         </div>
     </div>
@@ -2004,18 +2004,15 @@
 
 
         
-        // Setup program checkboxes to update currentFilters
+        // Program checkbox filtering
         function setupProgramFilters() {
             const checkboxes = document.querySelectorAll('.program-checkbox');
             checkboxes.forEach(cb => {
                 cb.addEventListener('change', function() {
-                    // Update currentFilters based on checkbox values
                     currentFilters.programs.littles = document.querySelector('input[value="littles_basic"]')?.checked || false;
                     currentFilters.programs.juniors = document.querySelector('input[value="juniors_basic"]')?.checked || false;
                     currentFilters.programs.advanced = document.querySelector('input[value="juniors_advanced"]')?.checked || false;
                     currentFilters.programs.leadership = document.querySelector('input[value="leadership"]')?.checked || false;
-                    
-                    // Re-render
                     renderCurriculum();
                 });
             });
