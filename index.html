@@ -594,7 +594,10 @@ Every student is required to attend an A and B day every week.
             }
         }
 
-        init();
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
     </script>
 </body>
 </html>
