@@ -1507,7 +1507,8 @@
                                            onchange="toggleCompletion(${week.week_number})">
                                     <span>Complete</span>
                                 </label>
-                                <button onclick="exportWeek(${week.week_number})">Export</button>
+                                <button onclick="printWeek(${week.week_number})" style="background: linear-gradient(135deg, var(--gold) 0%, #D68910 100%); color: #000; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; margin-right: 0.5rem;">🖨️ Print</button>
+                                <button onclick="copyWeek(${week.week_number})" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">📋 Copy</button>
                             </div>
                         </div>
                         <div class="programs-grid">${content}</div>
@@ -2134,6 +2135,157 @@
             w.document.write('<!DOCTYPE html><html><head><title>My Schedule - No Limit Martial Arts</title><style>@page{margin:0.5in}body{font-family:Arial,sans-serif;color:#000}h1{color:#5DADE2;text-align:center;margin-bottom:0.5rem}h2{text-align:center;font-size:1.2rem;margin-bottom:1.5rem;color:#333}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}.day-box{border:2px solid #5DADE2;border-radius:8px;padding:1rem}.day-label{color:#5DADE2;font-weight:700;margin-bottom:0.5rem}.day-sub{color:#666;font-size:0.85rem;margin-bottom:0.75rem}.time{font-weight:600;margin:0.25rem 0}.location{border-top:1px solid #ccc;padding-top:1rem;font-size:0.9rem;color:#555;text-align:center;margin-top:1rem}</style></head><body><h1>NO LIMIT MARTIAL ARTS</h1><h2>' + data.title + '</h2><div class="grid"><div class="day-box"><div class="day-label">CLASS A DAYS</div><div class="day-sub">Monday, Tuesday & Friday</div><div class="time">Mon: ' + data.classA.mon + '</div><div class="time">Tue: ' + data.classA.tue + '</div><div class="time">Fri: ' + data.classA.fri + '</div></div><div class="day-box"><div class="day-label">CLASS B DAYS</div><div class="day-sub">Wednesday, Thursday & Saturday</div><div class="time">Wed: ' + data.classB.wed + '</div><div class="time">Thu: ' + data.classB.thu + '</div><div class="time">Sat: ' + data.classB.sat + '</div></div></div><div class="location"><strong>Location:</strong> 100 Valley Way, West Orange, NJ<br><strong>Phone:</strong> 973-228-3424 | <strong>Website:</strong> NJKick.com</div></body></html>');
             w.document.close();
             setTimeout(() => w.print(), 500);
+        }
+
+        
+        function printWeek(weekNumber) {
+            const week = CURRICULUM_DATA.find(w => w.week_number == weekNumber);
+            if (!week) return;
+            
+            let content = '';
+            
+            // Add all programs
+            if (week.littles_basic && (week.littles_basic.Theme || week.littles_basic.Class_A_Technique)) {
+                content += formatProgramForPrint('LITTLES BASIC (Ages 4-8)', week.littles_basic);
+            }
+            if (week.juniors_basic && (week.juniors_basic.Theme || week.juniors_basic.Class_A_Technique)) {
+                content += formatProgramForPrint('JUNIORS BASIC (Ages 8-15)', week.juniors_basic);
+            }
+            if (week.juniors_advanced && (week.juniors_advanced.Theme || week.juniors_advanced.Class_A_Technique)) {
+                content += formatProgramForPrint('JUNIORS ADVANCED', week.juniors_advanced);
+            }
+            if (week.leadership) {
+                content += '<div class="program-section"><h3>LEADERSHIP</h3><p>' + week.leadership + '</p></div>';
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Week ${weekNumber} Curriculum - No Limit Martial Arts</title>
+                    <style>
+                        @page { margin: 0.5in; }
+                        body { font-family: Arial, sans-serif; color: #000; }
+                        h1 { color: #5DADE2; text-align: center; font-size: 1.3rem; margin-bottom: 0.25rem; }
+                        h2 { text-align: center; font-size: 1rem; margin-bottom: 0.25rem; color: #666; }
+                        .cycle { text-align: center; font-size: 0.9rem; color: #888; margin-bottom: 1rem; }
+                        .program-section { margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 6px; padding: 0.75rem; }
+                        .program-section h3 { color: #5DADE2; font-size: 1rem; margin: 0 0 0.5rem 0; border-bottom: 2px solid #5DADE2; padding-bottom: 0.25rem; }
+                        .theme { background: #f5f5f5; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; font-weight: 600; }
+                        .class-section { margin-bottom: 0.5rem; }
+                        .class-label { color: #5DADE2; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem; }
+                        .technique { font-size: 0.85rem; margin: 0.15rem 0; padding-left: 1rem; }
+                        p { margin: 0.25rem 0; font-size: 0.9rem; }
+                    </style>
+                </head>
+                <body>
+                    <h1>WEEK ${weekNumber} CURRICULUM</h1>
+                    <h2>${week.week_dates}</h2>
+                    <div class="cycle">${week.cycle}</div>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 500);
+        }
+        
+        function formatProgramForPrint(title, data) {
+            let html = '<div class="program-section"><h3>' + title + '</h3>';
+            
+            if (data.Theme) {
+                html += '<div class="theme">Theme: ' + data.Theme + '</div>';
+            }
+            
+            if (data.Class_A_Technique || data.Class_A_Drill || data.Class_A_BBT) {
+                html += '<div class="class-section"><div class="class-label">CLASS A (Mon, Tue, Fri):</div>';
+                if (data.Class_A_Technique) html += '<div class="technique">• Technique: ' + data.Class_A_Technique + '</div>';
+                if (data.Class_A_Drill) html += '<div class="technique">• Drill: ' + data.Class_A_Drill + '</div>';
+                if (data.Class_A_BBT) html += '<div class="technique">• BBT: ' + data.Class_A_BBT + '</div>';
+                html += '</div>';
+            }
+            
+            if (data.Class_B_Technique || data.Class_B_Drill || data.Class_B_BBT) {
+                html += '<div class="class-section"><div class="class-label">CLASS B (Wed, Thu, Sat):</div>';
+                if (data.Class_B_Technique) html += '<div class="technique">• Technique: ' + data.Class_B_Technique + '</div>';
+                if (data.Class_B_Drill) html += '<div class="technique">• Drill: ' + data.Class_B_Drill + '</div>';
+                if (data.Class_B_BBT) html += '<div class="technique">• BBT: ' + data.Class_B_BBT + '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function copyWeek(weekNumber) {
+            const week = CURRICULUM_DATA.find(w => w.week_number == weekNumber);
+            if (!week) return;
+            
+            let text = 'NO LIMIT MARTIAL ARTS - WEEK ' + weekNumber + '\n';
+            text += week.week_dates + '\n';
+            text += week.cycle + '\n';
+            text += '='.repeat(50) + '\n\n';
+            
+            // Add all programs
+            if (week.littles_basic && (week.littles_basic.Theme || week.littles_basic.Class_A_Technique)) {
+                text += formatProgramForCopy('LITTLES BASIC (Ages 4-8)', week.littles_basic);
+            }
+            if (week.juniors_basic && (week.juniors_basic.Theme || week.juniors_basic.Class_A_Technique)) {
+                text += formatProgramForCopy('JUNIORS BASIC (Ages 8-15)', week.juniors_basic);
+            }
+            if (week.juniors_advanced && (week.juniors_advanced.Theme || week.juniors_advanced.Class_A_Technique)) {
+                text += formatProgramForCopy('JUNIORS ADVANCED', week.juniors_advanced);
+            }
+            if (week.leadership) {
+                text += 'LEADERSHIP\n';
+                text += week.leadership + '\n\n';
+            }
+            
+            text += 'No Limit Martial Arts\n';
+            text += '100 Valley Way, West Orange, NJ\n';
+            text += 'Phone: 973-228-3424 | NJKick.com';
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show feedback - find the button that was clicked
+                const buttons = document.querySelectorAll('button[onclick*="copyWeek(' + weekNumber + ')"]');
+                if (buttons.length > 0) {
+                    const btn = buttons[0];
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '✅ Copied!';
+                    btn.style.background = 'linear-gradient(135deg, #27AE60 0%, #1E8449 100%)';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = 'linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%)';
+                    }, 2000);
+                }
+            });
+        }
+        
+        function formatProgramForCopy(title, data) {
+            let text = title + '\n';
+            text += '-'.repeat(40) + '\n';
+            
+            if (data.Theme) {
+                text += 'Theme: ' + data.Theme + '\n';
+            }
+            
+            if (data.Class_A_Technique || data.Class_A_Drill || data.Class_A_BBT) {
+                text += '\nCLASS A (Mon, Tue, Fri):\n';
+                if (data.Class_A_Technique) text += '  • Technique: ' + data.Class_A_Technique + '\n';
+                if (data.Class_A_Drill) text += '  • Drill: ' + data.Class_A_Drill + '\n';
+                if (data.Class_A_BBT) text += '  • BBT: ' + data.Class_A_BBT + '\n';
+            }
+            
+            if (data.Class_B_Technique || data.Class_B_Drill || data.Class_B_BBT) {
+                text += '\nCLASS B (Wed, Thu, Sat):\n';
+                if (data.Class_B_Technique) text += '  • Technique: ' + data.Class_B_Technique + '\n';
+                if (data.Class_B_Drill) text += '  • Drill: ' + data.Class_B_Drill + '\n';
+                if (data.Class_B_BBT) text += '  • BBT: ' + data.Class_B_BBT + '\n';
+            }
+            
+            text += '\n';
+            return text;
         }
 
         async function init() {
