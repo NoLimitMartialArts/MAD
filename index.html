@@ -1021,6 +1021,24 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
         }
+
+        
+        .program-select-btn {
+            background: #1a1a1a;
+            border: 2px solid var(--primary-blue);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .program-select-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 173, 226, 0.3);
+        }
 </style>
 </head>
 <body>
@@ -1233,31 +1251,77 @@
                 </p>
             </div>
 
+            <!-- INTERACTIVE SCHEDULE SELECTOR -->
+            <div style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--primary-blue); font-size: 1.5rem; margin-bottom: 1rem; text-align: center;">
+                    Find Your Schedule
+                </h3>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    Select your program to see your exact class schedule
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <button class="program-select-btn" onclick="showMySchedule('beginner-dragons')">Beginner Dragons<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 4-5</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('beginner-ninjas')">Beginner Ninjas<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 6-7</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('beginner-juniors-1')">Beginner Juniors Group 1<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 8-15</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('beginner-juniors-2')">Beginner Juniors Group 2<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 8-15</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('beginner-adults')">Beginner Adults<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 15+</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('bbt-dragons')">BBT Dragons<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 4-5</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('bbt-ninjas')">BBT Ninjas<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 6-7</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('bbt-juniors-1')">BBT Juniors Group 1<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 8-15</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('leadership-junior-1')">Leadership Junior Group 1<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 8-15</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('bbt-juniors-2')">BBT Juniors Group 2<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 8-15</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('leadership-junior-2')">Leadership Junior Group 2<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 8-15</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('adults')">Adults<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 15+</span></button>
+                    <button class="program-select-btn" onclick="showMySchedule('adult-leadership')">Adult Leadership<br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Ages 15+</span></button>
+                </div>
+                
+                <div id="scheduleResult" style="display: none; background: #000; border: 2px solid var(--gold); border-radius: 12px; padding: 1.5rem; margin-top: 1rem;">
+                    <h3 id="scheduleTitle" style="font-family: 'Bebas Neue', sans-serif; color: var(--gold); font-size: 1.75rem; margin-bottom: 1rem; text-align: center;"></h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: #1a1a1a; border-radius: 8px; padding: 1rem; border-left: 4px solid var(--primary-blue);">
+                            <div style="color: var(--primary-blue); font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem;">CLASS A DAYS</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">Monday, Tuesday & Friday</div>
+                            <div id="classASchedule" style="color: white; font-size: 1.1rem; font-weight: 600;"></div>
+                        </div>
+                        <div style="background: #1a1a1a; border-radius: 8px; padding: 1rem; border-left: 4px solid var(--primary-blue);">
+                            <div style="color: var(--primary-blue); font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem;">CLASS B DAYS</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.5rem;">Wednesday, Thursday & Saturday</div>
+                            <div id="classBSchedule" style="color: white; font-size: 1.1rem; font-weight: 600;"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="scheduleNote" style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 1.5rem; font-style: italic;"></div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="printMySchedule()" style="background: linear-gradient(135deg, var(--gold) 0%, #D68910 100%); color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.95rem;">
+                            🖨️ Print My Schedule
+                        </button>
+                        <button onclick="copyMySchedule()" id="copyBtn" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.95rem;">
+                            📋 Copy for Text/Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div style="text-align: center; margin-bottom: 2rem;">
+                <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--primary-blue); font-size: 1.5rem; margin-bottom: 1rem;">Full Schedule</h3>
                 <img src="EMA_Schedule.jpg" alt="West Orange Class Schedule" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
             </div>
 
-            
             <div style="text-align: center; margin: 2rem 0;">
                 <button onclick="printSchedule()" style="background: linear-gradient(135deg, var(--gold) 0%, #D68910 100%); color: #000; border: none; padding: 1rem 2rem; font-size: 1.1rem; font-weight: 600; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); transition: transform 0.2s, box-shadow 0.2s;">
-                    🖨️ Print Schedule
+                    🖨️ Print Full Schedule
                 </button>
             </div>
 
-<div style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; margin-top: 2rem;">
+            <div style="background: var(--card-bg); border-radius: 12px; padding: 1.5rem; margin-top: 2rem;">
                 <h3 style="font-family: 'Bebas Neue', sans-serif; color: var(--primary-blue); margin-bottom: 1rem;">Location Info:</h3>
-                <p style="margin-bottom: 0.5rem;">
-                    <strong>Temporary Location:</strong> 100 Valley Way, West Orange, NJ
-                </p>
-                <p style="margin-bottom: 0.5rem;">
-                    <strong>Permanent Location:</strong> 1001 Pleasant Valley Way (coming soon!)
-                </p>
-                <p style="margin-bottom: 0.5rem;">
-                    <strong>Phone:</strong> 973-228-3424
-                </p>
-                <p>
-                    <strong>Website:</strong> <a href="https://NJKick.com" target="_blank" style="color: var(--primary-blue);">NJKick.com</a>
-                </p>
+                <p style="margin-bottom: 0.5rem;"><strong>Temporary Location:</strong> 100 Valley Way, West Orange, NJ</p>
+                <p style="margin-bottom: 0.5rem;"><strong>Permanent Location:</strong> 1001 Pleasant Valley Way (coming soon!)</p>
+                <p style="margin-bottom: 0.5rem;"><strong>Phone:</strong> 973-228-3424</p>
+                <p><strong>Website:</strong> <a href="https://NJKick.com" target="_blank" style="color: var(--primary-blue);">NJKick.com</a></p>
             </div>
         </div>
     </div>
@@ -2016,6 +2080,60 @@
                     renderCurriculum();
                 });
             });
+        }
+
+        
+        const SCHEDULE_DATA = {
+            'beginner-dragons': { title: 'Beginner Dragons (Ages 4-5)', classA: { mon: '4:45pm - 5:15pm', tue: '4:00pm - 4:30pm', fri: '4:00pm - 4:30pm' }, classB: { wed: '4:45pm - 5:15pm', thu: '4:00pm - 4:30pm', sat: '9:45am - 10:15am' } },
+            'beginner-ninjas': { title: 'Beginner Ninjas (Ages 6-7)', classA: { mon: '4:00pm - 4:30pm', tue: '4:45pm - 5:15pm', fri: '4:45pm - 5:15pm' }, classB: { wed: '4:00pm - 4:30pm', thu: '4:45pm - 5:15pm', sat: '10:30am - 11:00am' } },
+            'beginner-juniors-1': { title: 'Beginner Juniors Group 1 (Ages 8-15)', classA: { mon: '5:30pm - 6:00pm', tue: '5:30pm - 6:00pm', fri: '5:30pm - 6:00pm' }, classB: { wed: '5:30pm - 6:00pm', thu: '5:30pm - 6:00pm', sat: '11:15am - 12:00pm (All Levels)' } },
+            'beginner-juniors-2': { title: 'Beginner Juniors Group 2 (Ages 8-15)', classA: { mon: '6:30pm - 7:00pm', tue: '6:30pm - 7:00pm', fri: '6:30pm - 7:00pm' }, classB: { wed: '6:30pm - 7:00pm', thu: '6:30pm - 7:00pm', sat: '11:15am - 12:00pm (All Levels)' } },
+            'beginner-adults': { title: 'Beginner Adults (Ages 15+)', classA: { mon: '7:30pm - 8:30pm', tue: '7:30pm - 8:30pm', fri: '7:30pm - 8:30pm' }, classB: { wed: '7:30pm - 8:30pm', thu: '7:30pm - 8:30pm', sat: '12:00pm - 1:00pm' } },
+            'bbt-dragons': { title: 'BBT Dragons (Ages 4-5)', classA: { mon: '4:45pm - 5:30pm', tue: '4:00pm - 4:45pm', fri: '4:00pm - 4:45pm' }, classB: { wed: '4:45pm - 5:30pm', thu: '4:00pm - 4:45pm', sat: '9:45am - 10:30am' } },
+            'bbt-ninjas': { title: 'BBT Ninjas (Ages 6-7)', classA: { mon: '4:00pm - 4:45pm', tue: '4:45pm - 5:30pm', fri: '4:45pm - 5:30pm' }, classB: { wed: '4:00pm - 4:45pm', thu: '4:45pm - 5:30pm', sat: '10:30am - 11:15am' } },
+            'bbt-juniors-1': { title: 'BBT Juniors Group 1 (Ages 8-15)', classA: { mon: '5:30pm - 6:15pm', tue: '5:30pm - 6:15pm', fri: '5:30pm - 6:15pm' }, classB: { wed: '5:30pm - 6:15pm', thu: '5:30pm - 6:15pm', sat: '11:15am - 12:00pm (All Levels)' } },
+            'leadership-junior-1': { title: 'Leadership Junior Group 1 (Ages 8-15)', classA: { mon: '5:30pm - 6:30pm', tue: '5:30pm - 6:30pm', fri: 'No Class' }, classB: { wed: '5:30pm - 6:30pm', thu: '5:30pm - 6:30pm', sat: '11:15am - 12:00pm (All Levels)' } },
+            'bbt-juniors-2': { title: 'BBT Juniors Group 2 (Ages 8-15)', classA: { mon: '6:30pm - 7:15pm', tue: '6:30pm - 7:15pm', fri: '6:30pm - 7:15pm' }, classB: { wed: '6:30pm - 7:15pm', thu: '6:30pm - 7:15pm', sat: '11:15am - 12:00pm (All Levels)' } },
+            'leadership-junior-2': { title: 'Leadership Junior Group 2 (Ages 8-15)', classA: { mon: '6:30pm - 7:30pm', tue: '6:30pm - 7:30pm', fri: 'No Class' }, classB: { wed: '6:30pm - 7:30pm', thu: '6:30pm - 7:30pm', sat: 'No Class' } },
+            'adults': { title: 'Adults (Ages 15+)', classA: { mon: '7:30pm - 8:30pm', tue: '7:30pm - 8:30pm', fri: '7:30pm - 8:30pm' }, classB: { wed: '7:30pm - 8:30pm', thu: '7:30pm - 8:30pm', sat: '12:00pm - 1:00pm' } },
+            'adult-leadership': { title: 'Adult Leadership', classA: { mon: 'No Class', tue: '7:30pm - 9:00pm', fri: 'No Class' }, classB: { wed: 'No Class', thu: 'No Class', sat: 'No Class' } }
+        };
+        
+        let currentScheduleProgram = null;
+        
+        function showMySchedule(program) {
+            const data = SCHEDULE_DATA[program];
+            if (!data) return;
+            currentScheduleProgram = program;
+            document.querySelectorAll('.program-select-btn').forEach(btn => btn.style.opacity = '0.6');
+            event.target.closest('button').style.opacity = '1';
+            document.getElementById('scheduleTitle').textContent = data.title;
+            document.getElementById('classASchedule').innerHTML = 'Mon: ' + data.classA.mon + '<br>Tue: ' + data.classA.tue + '<br>Fri: ' + data.classA.fri;
+            document.getElementById('classBSchedule').innerHTML = 'Wed: ' + data.classB.wed + '<br>Thu: ' + data.classB.thu + '<br>Sat: ' + data.classB.sat;
+            document.getElementById('scheduleNote').textContent = 'Remember: Every student must attend one A day and one B day each week.';
+            document.getElementById('scheduleResult').style.display = 'block';
+            document.getElementById('scheduleResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function copyMySchedule() {
+            const data = SCHEDULE_DATA[currentScheduleProgram];
+            if (!data) return;
+            const text = 'NO LIMIT MARTIAL ARTS - MY SCHEDULE\n' + data.title + '\n\nCLASS A DAYS (Mon, Tue, Fri):\n  Monday: ' + data.classA.mon + '\n  Tuesday: ' + data.classA.tue + '\n  Friday: ' + data.classA.fri + '\n\nCLASS B DAYS (Wed, Thu, Sat):\n  Wednesday: ' + data.classB.wed + '\n  Thursday: ' + data.classB.thu + '\n  Saturday: ' + data.classB.sat + '\n\nLocation: 100 Valley Way, West Orange, NJ\nPhone: 973-228-3424 | NJKick.com';
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = '✅ Copied!';
+                btn.style.background = 'linear-gradient(135deg, #27AE60 0%, #1E8449 100%)';
+                setTimeout(() => { btn.textContent = '📋 Copy for Text/Email'; btn.style.background = 'linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%)'; }, 2000);
+            });
+        }
+        
+        function printMySchedule() {
+            const data = SCHEDULE_DATA[currentScheduleProgram];
+            if (!data) return;
+            const w = window.open('', '_blank');
+            w.document.write('<!DOCTYPE html><html><head><title>My Schedule - No Limit Martial Arts</title><style>@page{margin:0.5in}body{font-family:Arial,sans-serif;color:#000}h1{color:#5DADE2;text-align:center;margin-bottom:0.5rem}h2{text-align:center;font-size:1.2rem;margin-bottom:1.5rem;color:#333}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}.day-box{border:2px solid #5DADE2;border-radius:8px;padding:1rem}.day-label{color:#5DADE2;font-weight:700;margin-bottom:0.5rem}.day-sub{color:#666;font-size:0.85rem;margin-bottom:0.75rem}.time{font-weight:600;margin:0.25rem 0}.location{border-top:1px solid #ccc;padding-top:1rem;font-size:0.9rem;color:#555;text-align:center;margin-top:1rem}</style></head><body><h1>NO LIMIT MARTIAL ARTS</h1><h2>' + data.title + '</h2><div class="grid"><div class="day-box"><div class="day-label">CLASS A DAYS</div><div class="day-sub">Monday, Tuesday & Friday</div><div class="time">Mon: ' + data.classA.mon + '</div><div class="time">Tue: ' + data.classA.tue + '</div><div class="time">Fri: ' + data.classA.fri + '</div></div><div class="day-box"><div class="day-label">CLASS B DAYS</div><div class="day-sub">Wednesday, Thursday & Saturday</div><div class="time">Wed: ' + data.classB.wed + '</div><div class="time">Thu: ' + data.classB.thu + '</div><div class="time">Sat: ' + data.classB.sat + '</div></div></div><div class="location"><strong>Location:</strong> 100 Valley Way, West Orange, NJ<br><strong>Phone:</strong> 973-228-3424 | <strong>Website:</strong> NJKick.com</div></body></html>');
+            w.document.close();
+            setTimeout(() => w.print(), 500);
         }
 
         async function init() {
